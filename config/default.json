@@ -1,0 +1,26 @@
+{
+	"router": {
+		"class": "\\e7o\\Moments\\Request\\Routers\\SimpleRouter"
+	},
+	"routes": [],
+	"services": {
+		"database": {
+			"class": "\\e7o\\Moments\\Database\\Connection",
+			"args": [
+				"%database"
+			]
+		},
+		"template_loader": {
+			"class": "\\e7o\\Moments\\Output\\Template\\MomentsLoader",
+			"args": [
+				"${root}/views"
+			]
+		},
+		"template": {
+			"class": "\\e7o\\Morosity\\Morosity",
+			"args": [
+				"@template_loader"
+			]
+		}
+	}
+}

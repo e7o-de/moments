@@ -1,0 +1,19 @@
+{
+    "name": "e7o/moments",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Sven Herzky",
+            "email": "sven@e7o.de"
+        }
+    ],
+   	"autoload": {
+        "psr-4": {
+            "e7o\\moments\\": "src/e7o/Moments"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "e7o/morosity": "dev-master"
+    }
+}
