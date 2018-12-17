@@ -7,9 +7,10 @@
             "email": "sven@e7o.de"
         }
     ],
-   	"autoload": {
+    "license": ["LGPL-3.0-or-later"],
+    "autoload": {
         "psr-4": {
-            "e7o\\moments\\": "src/e7o/Moments"
+            "e7o\\Moments\\": "src/e7o/Moments"
         }
     },
     "minimum-stability": "dev",
