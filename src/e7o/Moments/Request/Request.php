@@ -29,13 +29,16 @@ class Request
 		return $this->basePath;
 	}
 	
+	/*
+	*	Works with this one:
+	*	
+	*	location /project/public {
+	*		try_files $uri /project/public/index.php;
+	*	}
+	*/
 	private function buildPaths()
 	{
-		if (isset($_SERVER['PATH_INFO'])) {
-			// TODO: This might not work :)
-			$this->routingPath = $this->removeParams($_SERVER['PATH_INFO']);
-			$fullPath = $_SERVER['PATH_INFO'];
-		} else if (isset($_SERVER['REQUEST_URI']) && isset($_SERVER['SCRIPT_NAME'])) {
+		if (isset($_SERVER['REQUEST_URI']) && isset($_SERVER['SCRIPT_NAME'])) {
 			$path = substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
 			if (substr($_SERVER['REQUEST_URI'], 0, strlen($path)) == $path) {
 				$this->routingPath = $this->removeParams(substr($_SERVER['REQUEST_URI'], strlen($path)));
@@ -45,7 +48,6 @@ class Request
 			// TODO: Shouldn't happen, log something
 			$this->routingPath = '';
 		}
-		
 		$this->basePath = substr($fullPath, 0, -strlen($this->routingPath));
 	}
 	
@@ -78,3 +80,4 @@ class Request
 		return $_REQUEST[$parameter] ?? null;
 	}
 }
+
