@@ -5,6 +5,7 @@ namespace e7o\Moments\Request\Controllers;
 use \e7o\Moments\Moment;
 use \e7o\Moments\Request\Request;
 use \e7o\Moments\Response\Response;
+use \e7o\Moments\Response\JsonResponse;
 use \e7o\Moments\Request\Routers\Router;
 
 class MomentsController implements Controller
@@ -62,6 +63,8 @@ class MomentsController implements Controller
 			
 			if (!empty($route['template'])) {
 				$returned = new Response($this->template->render($route['template'], $returned));
+			} else if (!empty($route['json'])) {
+				$returned = new JsonResponse($returned);
 			}
 			
 			return $returned;
