@@ -21,7 +21,8 @@ class Moment
 		}
 		$defaultConfig = new JsonReader(__DIR__ . '/../../../config/default.json');
 		$customConfig = new JsonReader($this->baseDir . '/config/config.json');
-		$this->config = new AlternativeReader($customConfig, $defaultConfig);
+		$credentialsConfig = new JsonReader($this->baseDir . '/config/credentials.json');
+		$this->config = new AlternativeReader($customConfig, $credentialsConfig, $defaultConfig);
 		
 		$routerClass = $this->config->getAll('router')['class'];
 		$routes = $this->config->getAll('routes');
