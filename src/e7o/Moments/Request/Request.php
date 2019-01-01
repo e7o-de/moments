@@ -7,11 +7,23 @@ class Request
 	protected $body;
 	protected $routingPath;
 	protected $basePath;
+	protected $params;
 	
 	public function __construct()
 	{
 		$this->body = file_get_contents('php://input');
 		$this->buildPaths();
+		$this->params = $_REQUEST;
+		if ($_SERVER['CONTENT_TYPE'] == 'application/json' && strlen($this->body) > 0) {
+			$dec = json_decode($this->body, true);
+			if (strtolower($this->body) === 'null') {
+				// Just in case ;)
+			} else if (is_array($dec)) {
+				$this->params += $dec;
+			} else {
+				throw new \Exception('This is a 400 Bad Request - JSON error: ' . \json_last_error_msg());
+			}
+		}
 	}
 	
 	public function getUrl()
@@ -72,12 +84,12 @@ class Request
 	
 	public function getParameters()
 	{
-		return $_REQUEST;
+		return $this->params;
 	}
 	
 	public function getParameter($parameter)
 	{
-		return $_REQUEST[$parameter] ?? null;
+		return $this->params[$parameter] ?? null;
 	}
 }
 
