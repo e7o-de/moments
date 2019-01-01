@@ -87,9 +87,9 @@ class Request
 		return $this->params;
 	}
 	
-	public function getParameter($parameter)
+	public function getParameter($parameter, $default = null)
 	{
-		return $this->params[$parameter] ?? null;
+		return $this->params[$parameter] ?? $default;
 	}
 }
 
