@@ -55,12 +55,18 @@ class Request
 			if (substr($_SERVER['REQUEST_URI'], 0, strlen($path)) == $path) {
 				$this->routingPath = $this->removeParams(substr($_SERVER['REQUEST_URI'], strlen($path)));
 				$fullPath = $_SERVER['REQUEST_URI'];
+			} else {
+				// TODO: Weird server configuration, mapping random urls to Moments
+				$this->routingPath = '__BROKEN_ROUTING_PATH_1';
 			}
 		} else {
-			// TODO: Shouldn't happen, log something
-			$this->routingPath = '';
+			// TODO: Shouldn't happen, please fix this: the server config is unknown until now :)
+			$this->routingPath = '__BROKEN_ROUTING_PATH_2';
 		}
 		$this->basePath = substr($fullPath, 0, -strlen($this->routingPath));
+		if (substr($this->basePath, -1, 1) == '/') {
+			$this->basePath = substr($this->basePath, 0, -1);
+		}
 	}
 	
 	private function removeParams($uri)

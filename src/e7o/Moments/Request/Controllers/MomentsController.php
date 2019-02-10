@@ -61,6 +61,12 @@ class MomentsController implements Controller
 			
 			$returned = $method->invokeArgs($this, $args);
 			
+			// todo: make real object with url builder, lazy evaluation etc.
+			$returned['$'] = [
+				'assets' => $this->request->getBasePath() . '/assets/',
+				'top' => $this->request->getBasePath() . '/',
+			];
+			
 			if (!empty($route['template'])) {
 				$returned = new Response($this->template->render($route['template'], $returned));
 			} else if (!empty($route['json'])) {
