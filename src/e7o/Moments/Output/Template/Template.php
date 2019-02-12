@@ -18,6 +18,11 @@ class Template
 	{
 		// Very very basic implementation, even whitespaces are important ;)
 		$template = $this->loader->load($file);
+		return $this->renderString($template, $params);
+	}
+	
+	public function renderString(string $template, array $params = [])
+	{
 		foreach ($params as $key => $value) {
 			$template = str_replace('{{ ' . $key . ' }}', $value, $template);
 		}

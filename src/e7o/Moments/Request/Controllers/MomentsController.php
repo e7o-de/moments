@@ -63,10 +63,7 @@ class MomentsController implements Controller
 			
 			if (!empty($route['template'])) {
 				// todo: make real object with url builder, lazy evaluation etc.
-				$returned['$'] = [
-					'assets' => $this->request->getBasePath() . '/assets/',
-					'top' => $this->request->getBasePath() . '/',
-				];
+				$returned['$'] = $this->getTemplateVars();
 				$returned = new Response($this->template->render($route['template'], $returned));
 			} else if (!empty($route['json'])) {
 				$returned = new JsonResponse($returned);
@@ -92,6 +89,14 @@ class MomentsController implements Controller
 	public function getMoment(): Moment
 	{
 		return $this->moment;
+	}
+	
+	protected function getTemplateVars()
+	{
+		return [
+			'assets' => $this->request->getBasePath() . '/assets/',
+			'top' => $this->request->getBasePath() . '/',
+		];
 	}
 	
 	protected function fallback($request, $rule)
