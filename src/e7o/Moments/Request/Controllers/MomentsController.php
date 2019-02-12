@@ -89,6 +89,11 @@ class MomentsController implements Controller
 		}
 	}
 	
+	public function getMoment(): Moment
+	{
+		return $this->moment;
+	}
+	
 	protected function fallback($request, $rule)
 	{
 		if (isset($rule['delegate'])) {

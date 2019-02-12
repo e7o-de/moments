@@ -14,6 +14,7 @@ class Moment
 	
 	public function __construct(string $baseDir)
 	{
+		$baseDir = realpath($baseDir);
 		if (substr($baseDir, -1) == '/') {
 			$this->baseDir = substr($baseDir, 0, -1);
 		} else {
@@ -86,6 +87,11 @@ class Moment
 		
 		// TODO: Exception
 		return null;
+	}
+	
+	public function getBasePath()
+	{
+		return $this->baseDir;
 	}
 	
 	private function initServices()
