@@ -23,8 +23,7 @@ use \e7o\Moments\Response\Response;
  */
 class SimpleRouter implements Router
 {
-	// ToDo: Check if whitelisting is better or just blacklisting the slash
-	const MATCH_PATTERN = '[a-zA-Z0-9]+';
+	const MATCH_PATTERN = '[^/]+';
 	private $table;
 	
 	public function __construct(array &$routingTable)
@@ -40,12 +39,19 @@ class SimpleRouter implements Router
 					. preg_replace_callback(
 						'#\{(' . static::MATCH_PATTERN . ')\}#',
 						function($match) use (&$params) {
-							$params[$match[1]] = 'null';
-							return '(?<' . $match[1] . '>' . static::MATCH_PATTERN . ')';
+							$paramName = $match[1];
+							if ($paramName[0] == '*') {
+								$paramName = substr($paramName, 1);
+								$pattern = '.*';
+							} else {
+								$pattern = static::MATCH_PATTERN;
+							}
+							$params[$paramName] = 'null';
+							return '(?<' . $paramName . '>' . $pattern . ')';
 						},
 						$route['route']
 					)
-					. '#';
+					. '/?$#';
 				$route['parameters'] = $params;
 			} else {
 				$route['parameters'] = [];
@@ -69,10 +75,7 @@ class SimpleRouter implements Router
 	
 	public function callController(Moment $moment, Request $request): Response
 	{
-		$path = $this->unifyRoutingPath(
-			$request->getRoutingPath()
-		);
-		
+		$path = $this->unifyRoutingPath($request->getRoutingPath());
 		$route = $this->findRoute($path);
 		
 		if (empty($route)) {
@@ -91,7 +94,7 @@ class SimpleRouter implements Router
 		}
 		$url = $request->getBasePath() . $route['route'];
 		foreach ($params as $key => $value) {
-			$url = str_replace('{' . $key . '}', urlencode($value), $url);
+			$url = str_replace(['{' . $key . '}', '{*' . $key . '}'], urlencode($value), $url);
 			unset($params[$key]);
 		}
 		if (!empty($params)) {
@@ -102,8 +105,8 @@ class SimpleRouter implements Router
 	
 	protected function unifyRoutingPath(string $path)
 	{
-		if (substr($path, -1, 1) != '/') {
-			$path .= '/';
+		if (substr($path, -1, 1) == '/') {
+			$path = substr($path, 0, -1);
 		}
 		
 		return $path;
