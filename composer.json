@@ -13,7 +13,10 @@
             "e7o\\Moments\\": "src/e7o/Moments"
         }
     },
-    "minimum-stability": "dev",
+    "bin": [
+        "bin/init-moments"
+    ],
+    "minimum-stability": "stable",
     "require": {
         "e7o/morosity": "dev-master"
     }

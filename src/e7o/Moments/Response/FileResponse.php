@@ -19,4 +19,3 @@ class FileResponse extends Response
 		readfile($this->file);
 	}
 }
-

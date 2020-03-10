@@ -1,0 +1,19 @@
+{
+	"routes": [
+		{
+			"id": "index",
+			"route": "/",
+			"controller": "\\My\\Project\\Controllers\\Index",
+			"method": "indexAction",
+			"template": "index.htm"
+		},
+		{
+			"id": "json",
+			"route": "/json",
+			"controller": "\\My\\Project\\Controllers\\Index",
+			"method": "jsonAction",
+			"json": true
+		}
+	]
+}
+

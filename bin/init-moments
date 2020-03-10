@@ -1,0 +1,33 @@
+#!/usr/bin/php
+<?php
+
+$from = __DIR__;
+if ($from[-1] != '/') {
+	$from .= '/';
+}
+$from .= '../project-template/';
+
+$to = getcwd();
+if ($to[-1] != '/') {
+	$to .= '/';
+}
+
+if (file_exists($to . 'public')) {
+	echo "There's already a public directory, preventing initialisation.";
+	return;
+}
+
+mkdir($to . 'config');
+copy($from . 'config-config.json', $to . 'config/config.json');
+copy($from . 'config-credentials.json', $to . 'config/credentials.json');
+
+mkdir($to . 'public');
+copy($from . 'public-index.php', $to . 'public/index.php');
+
+mkdir($to . 'public/assets');
+copy($from . 'assets-script.js', $to . 'public/assets/script.js');
+copy($from . 'assets-screen.css', $to . 'public/assets/screen.css');
+copy($from . 'assets-print.css', $to . 'public/assets/print.css');
+
+mkdir($to . 'views');
+copy($from . 'views-index.htm', $to . 'views/index.htm');
