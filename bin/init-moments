@@ -1,6 +1,10 @@
 #!/usr/bin/php
 <?php
 
+echo "Moments project creation wizard\n";
+echo "-------------------------------\n";
+$namespace = '\\' . readline('Desired namespace (e.g. \ACME\Website): \\');
+
 $from = __DIR__;
 if ($from[-1] != '/') {
 	$from .= '/';
@@ -17,17 +21,78 @@ if (file_exists($to . 'public')) {
 	return;
 }
 
-mkdir($to . 'config');
-copy($from . 'config-config.json', $to . 'config/config.json');
-copy($from . 'config-credentials.json', $to . 'config/credentials.json');
+$replacements = [
+	['__NAMESPACE__', $namespace],
+	['__NAMESPACE_REL__', substr($namespace, 1)],
+	['__NAMESPACE_ESCAPED__', str_replace('\\', '\\\\', $namespace)],
+];
 
-mkdir($to . 'public');
-copy($from . 'public-index.php', $to . 'public/index.php');
+function copyDir($src, $dst)
+{
+	global $namespace;
+	
+	$d = dir($src);
+	while ($e = $d->read()) {
+		if ($e[0] == '.') {
+			continue;
+		}
+		$er = replaceStuff($e);
+		if (is_dir($src . $e)) {
+			if ($e == '_src_') {
+				// Expand namespace to directory
+				$ns = explode('\\', substr($namespace, 1));
+				$ndst = $dst . 'src/';
+				mkdir($ndst);
+				foreach ($ns as $p) {
+					$ndst .= $p . '/';
+					mkdir($ndst);
+				}
+				copyDir($src . $e . '/', $ndst);
+			} else {
+				mkdir($dst . $er);
+				copyDir($src . $e . '/', $dst . $er . '/');
+			}
+		} else {
+			$f = file_get_contents($src . $e);
+			$f = replaceStuff($f);
+			file_put_contents($dst . $er, $f);
+		}
+	}
+}
 
-mkdir($to . 'public/assets');
-copy($from . 'assets-script.js', $to . 'public/assets/script.js');
-copy($from . 'assets-screen.css', $to . 'public/assets/screen.css');
-copy($from . 'assets-print.css', $to . 'public/assets/print.css');
+function replaceStuff($f)
+{
+	global $replacements;
+	
+	foreach ($replacements as $r) {
+		$f = str_replace($r[0], $r[1], $f);
+	}
+	
+	return $f;
+}
 
-mkdir($to . 'views');
-copy($from . 'views-index.htm', $to . 'views/index.htm');
+// Copying files from template
+copyDir($from, $to);
+
+// Adding autoloading for created namespace
+$composer = json_decode(file_get_contents($to . 'composer.json'), true);
+
+if (!isset($composer['autoload'])) {
+	$composer['autoload'] = [];
+}
+if (!isset($composer['autoload']['psr-4'])) {
+	$composer['autoload']['psr-4'] = [];
+}
+$composer['autoload']['psr-4'][substr($namespace, 1) . '\\'] = 'src' . str_replace('\\', '/', $namespace);
+
+file_put_contents($to . 'composer.json', json_encode($composer, JSON_PRETTY_PRINT));
+
+// Done
+echo "
+Done initialisation.
+
+Next steps on your to-do list:
+ - run something like: composer dump-autoload
+ - Have fun and implement, start with setting up the routes
+   in config/config.json
+";

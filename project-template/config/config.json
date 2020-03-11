@@ -3,17 +3,16 @@
 		{
 			"id": "index",
 			"route": "/",
-			"controller": "\\My\\Project\\Controllers\\Index",
+			"controller": "__NAMESPACE_ESCAPED__\\Controllers\\Index",
 			"method": "indexAction",
 			"template": "index.htm"
 		},
 		{
 			"id": "json",
 			"route": "/json",
-			"controller": "\\My\\Project\\Controllers\\Index",
+			"controller": "__NAMESPACE_ESCAPED__\\Controllers\\Index",
 			"method": "jsonAction",
 			"json": true
 		}
 	]
 }
-
