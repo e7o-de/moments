@@ -38,7 +38,7 @@ class SimpleRouter implements Router
 					'#'
 					. preg_replace_callback(
 						'#\{(' . static::MATCH_PATTERN . ')\}#',
-						function($match) use (&$params) {
+						function ($match) use (&$params) {
 							$paramName = $match[1];
 							if ($paramName[0] == '*') {
 								$paramName = substr($paramName, 1);
@@ -105,6 +105,14 @@ class SimpleRouter implements Router
 	
 	protected function unifyRoutingPath(string $path)
 	{
+		if (substr($path, 0, 10) == '/index.php') {
+			$path = substr($path, 10);
+		}
+		
+		if (strlen($path) == 0) {
+			return '/';
+		}
+		
 		if (substr($path, -1, 1) == '/') {
 			$path = substr($path, 0, -1);
 		}
@@ -131,4 +139,3 @@ class SimpleRouter implements Router
 		return null;
 	}
 }
-
