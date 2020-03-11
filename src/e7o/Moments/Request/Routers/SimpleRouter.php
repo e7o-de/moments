@@ -113,7 +113,7 @@ class SimpleRouter implements Router
 			return '/';
 		}
 		
-		if (substr($path, -1, 1) == '/') {
+		if (substr($path, -1, 1) == '/' && strlen($path) > 1) {
 			$path = substr($path, 0, -1);
 		}
 		
