@@ -13,13 +13,21 @@
 		"template_loader": {
 			"class": "\\e7o\\Moments\\Output\\Template\\MomentsLoader",
 			"args": [
-				"${root}/views"
+				"${root}/views",
+				"${moments}/views"
 			]
 		},
 		"template": {
 			"class": "\\e7o\\Morosity\\Morosity",
 			"args": [
 				"@template_loader"
+			]
+		},
+		"forms": {
+			"class": "\\e7o\\Moments\\Output\\Forms\\Generator",
+			"args": [
+				"@template",
+				"${root}/forms"
 			]
 		}
 	}

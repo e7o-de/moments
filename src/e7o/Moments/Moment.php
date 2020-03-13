@@ -11,11 +11,13 @@ class Moment
 	protected $router;
 	protected $services;
 	protected $baseDir;
+	protected $momentsBaseDir;
 	
 	public function __construct(string $baseDir)
 	{
+		$this->momentsBaseDir = realpath(__DIR__ . '/../../../');
 		$baseDir = realpath($baseDir);
-		if (substr($baseDir, -1) == '/') {
+		if ($baseDir[-1] == '/') {
 			$this->baseDir = substr($baseDir, 0, -1);
 		} else {
 			$this->baseDir = $baseDir;
@@ -133,6 +135,7 @@ class Moment
 		} else if (is_string($arg)) {
 			// Very ugly solution, but works for only few vars ;)
 			$arg = str_replace('${root}', $this->baseDir, $arg);
+			$arg = str_replace('${moments}', $this->momentsBaseDir, $arg);
 		}
 	}
 }

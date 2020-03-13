@@ -1,0 +1,10 @@
+{% switch type %}
+{% case "text" %}
+<label for="{{ tech-id }}">{{ label }}</label>
+<input
+	type="text" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default }}"
+	{% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+/>
+{% case "submit" %}
+<button type="submit">{{ label }}</button>
+{% endswitch %}

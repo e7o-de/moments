@@ -6,22 +6,34 @@ use \e7o\Morosity\Loader\Loader;
 
 class MomentsLoader implements Loader
 {
-	private $dir;
+	private $dirs;
+	private $cache = [];
 	
-	public function __construct(string $rootDir)
+	public function __construct(string ...$rootDirs)
 	{
-		if (substr($rootDir, -1) != '/') {
-			$rootDir .= '/';
+		$this->dirs = [];
+		foreach ($rootDirs as $dir) {
+			if ($dir[-1] != '/') {
+				$dir .= '/';
+			}
+			$this->dirs[] = $dir;
 		}
-		$this->dir = $rootDir;
 	}
 	
 	public function load(string $file)
 	{
-		$possibleFilename = $this->dir . $file;
-		if (!file_exists($possibleFilename)) {
-			throw new \Exception('Template not found: ' . $file);
+		if (isset($this->cache[$file])) {
+			return $this->cache[$file];
 		}
-		return file_get_contents($possibleFilename);
+		
+		foreach ($this->dirs as $dir) {
+			$possibleFilename = $dir . $file;
+			if (file_exists($possibleFilename)) {
+				$this->cache[$file] = file_get_contents($possibleFilename);
+				return $this->cache[$file];
+			}
+		}
+		
+		throw new \Exception('Template not found: ' . $file);
 	}
 }
