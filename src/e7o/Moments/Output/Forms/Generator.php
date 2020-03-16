@@ -6,7 +6,9 @@ use \e7o\Moments\Request\Request;
 
 /**
 * Builds a form which can be submitted and easily stored. Just pass a filename of
-* a JSON config in your forms/ directory. It can contain the following data:
+* a JSON config in your forms/ directory. Passing an array is possible, but it's
+* not recommended (and might be removed when it blocks other functionality).
+* It can contain the following data:
 * 
 * ```javascript
 * [
@@ -48,7 +50,7 @@ class Generator
 		$this->forms = $formsDirectory;
 	}
 	
-	public function build($form, $options = [], $data = [])
+	public function build($form, array $options = [], array $data = [])
 	{
 		$formId = is_string($form) ? md5($form) : null;
 		$form = $this->readForm($form);
@@ -57,7 +59,7 @@ class Generator
 		$result = [];
 		
 		foreach ($form as $element) {
-			$element = $this->fillUp($element);
+			$element = $this->fillUp($element, $data);
 			if ($element['type'] == 'file') {
 				$hasUploads = true;
 			}
@@ -83,7 +85,7 @@ class Generator
 	* Checks if a form was submitted and is in the request. This will only
 	* work for file-based templates.
 	*/
-	public function hasFormData($form, Request $request)
+	public function hasFormData($form, Request $request): bool
 	{
 		return $request->getParameter('sender') === md5($form);
 	}
@@ -91,10 +93,10 @@ class Generator
 	/**
 	* Returns the user input as array, if all requirements are fullfilled.
 	*/
-	public function evaluate($form, Request $request)
+	public function evaluate($form, Request $request): array
 	{
 		$form = $this->readForm($form);
-		$data = [];
+		$collected = [];
 		
 		foreach ($form as $element) {
 			$element = $this->fillUp($element);
@@ -112,20 +114,26 @@ class Generator
 					}
 				}
 			}
-			$data[$element['id']] = $data;
+			$collected[$element['id']] = $data;
 		}
 		
-		return $data;
+		return $collected;
 	}
 	
-	private function fillUp($e)
+	private function fillUp($e, &$data = null): array
 	{
 		$e['tech-id'] = md5($e['id']);
+		
+		if ($data !== null) {
+			if (isset($data[$e['id']])) {
+				$e['default'] = $data[$e['id']];
+			}
+		}
 		
 		return $e;
 	}
 	
-	private function readForm($form)
+	private function readForm($form): array
 	{
 		switch (true) {
 			case is_string($form):
