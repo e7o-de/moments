@@ -1,4 +1,7 @@
-<form id="{{ form-id }}" method="{{ method }}" action="{{ action }}" enctype="{{ enctype }}">
+<form
+	method="{{ method }}" action="{{ action }}" enctype="{{ enctype }}"
+	id="{{ form-id }}" {% if class %}class="{{ class }}"{% endif %}
+>
 	<input type="hidden" name="sender" value="{{ form-id }}" />
 	{{ content }}
 </form>

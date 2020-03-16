@@ -13,7 +13,7 @@ class Request
 	{
 		$this->body = file_get_contents('php://input');
 		$this->buildPaths();
-		$this->params = $_REQUEST;
+		$this->params = $_REQUEST + $_FILES;
 		if ($_SERVER['CONTENT_TYPE'] == 'application/json' && strlen($this->body) > 0) {
 			$dec = json_decode($this->body, true);
 			if (strtolower($this->body) === 'null') {

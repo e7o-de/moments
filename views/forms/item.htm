@@ -1,10 +1,20 @@
+<div>
 {% switch type %}
 {% case "text" %}
-<label for="{{ tech-id }}">{{ label }}</label>
-<input
-	type="text" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default }}"
-	{% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
-/>
+	<label for="{{ tech-id }}">{{ label }}</label>
+	<input
+		type="text" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default }}"
+		{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
+		{% if constraints.pattern %}pattern="{{ constraints.pattern }}"{% endif %}
+	/>
+{% case "file" %}
+	<label for="{{ tech-id }}">{{ label }}</label>
+	<input type="file" id="{{ tech-id }}" name="{{ tech-id }}"
+		{% if constraints.type %}accept="{{ constraints.type }}/*"{% endif %}
+	/>
 {% case "submit" %}
-<button type="submit">{{ label }}</button>
+	<button type="submit">{{ label }}</button>
+{% case * %}
+	[ERROR: Unknown type <i>{{ type }}</i> in form config]
 {% endswitch %}
+</div>
