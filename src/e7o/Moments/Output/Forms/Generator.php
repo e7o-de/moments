@@ -14,9 +14,10 @@ use \e7o\Moments\Request\Request;
 * [
 * 	{
 * 		"id": "<NAME>",
-* 		"type": "text|file|submit",
+* 		"type": "text|longtext|file|submit|bool|list",
 * 		"label": "Some short description",
 * 		"default": "<DEFAULT>",
+* 		"options": [1, 2, 3] | {"a": "Apple", "b": "Banana"}
 * 		"constraints": {
 * 			"required": true,
 * 			"maxlength": 128, # for text inputs
@@ -104,13 +105,26 @@ class Generator
 			if ($element['type'] == 'file') {
 				// ToDo: Other constraints (like file type)
 			} else {
+				// Handle regular, easy constraints
 				if (isset($element['constraints']) && is_array($element['constraints'])) {
 					$constraints = $element['constraints'];
 					if (
 						isset($constraints['maxlength']) && strlen($data) > $constraints['maxlength']
 						|| isset($constraints['pattern']) && preg_match('/^' . $constraints['pattern'] . '$/', $data) == 0
+						|| isset($constraints['required']) && $constraints['required'] && strlen($data) == 0
 					) {
 						throw new \Exception('Form constraint not fullfilled on element ' . $element['id']);
+					}
+				}
+				if ($element['type'] == 'list') {
+					// Validate input against specified list values
+					if (!is_array($data)) {
+						$data = [$data];
+					}
+					foreach ($data as $singleval) {
+						if (!isset($element['options'][$singleval])) {
+							throw new \Exception('Element ' . $element['id'] . ' received invalid list value ' . $singleval);
+						}
 					}
 				}
 			}
@@ -123,6 +137,10 @@ class Generator
 	private function fillUp($e, &$data = null): array
 	{
 		$e['tech-id'] = md5($e['id']);
+		
+		if (isset($e['options']) && is_array($e['options']) && is_numeric(key($e['options']))) {
+			$e['default'] = array_search($e['default'], $e['options'], true);
+		}
 		
 		if ($data !== null) {
 			if (isset($data[$e['id']])) {

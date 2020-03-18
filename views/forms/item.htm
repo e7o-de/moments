@@ -1,12 +1,28 @@
-<div>
+<div class="form_{{ type }}">
 {% switch type %}
 {% case "text" %}
 	<label for="{{ tech-id }}">{{ label }}</label>
 	<input
-		type="text" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default }}"
+		type="text" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default|encode }}"
 		{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
 		{% if constraints.pattern %}pattern="{{ constraints.pattern }}"{% endif %}
 	/>
+{% case "longtext" %}
+	<label for="{{ tech-id }}">{{ label }}</label>
+	<textarea
+		id="{{ tech-id }}" name="{{ tech-id }}"
+		{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
+	>{{ default|encode }}</textarea>
+{% case "bool" %}
+	<input type="checkbox" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ 1 }}" {% if default %}checked="checked"{% endif %} />
+	<label for="{{ tech-id }}">{{ label }}</label>
+{% case "list" %}
+	<label for="{{ tech-id }}">{{ label }}</label>
+	<select id="{{ tech-id }}" name="{{ tech-id }}{% if multiple %}[]{% endif %}" {% if multiple %} multiple="multiple"{% endif %}>
+		{% for k, v in options %}
+			<option value="{{ k|encode }}" {% if k == default %} selected="selected"{% endif %}>{{ v|encode }}</option>
+		{% endfor %}
+	</select>
 {% case "file" %}
 	<label for="{{ tech-id }}">{{ label }}</label>
 	<input type="file" id="{{ tech-id }}" name="{{ tech-id }}"
