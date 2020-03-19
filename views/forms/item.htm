@@ -4,9 +4,17 @@
 	<label for="{{ tech-id }}">{{ label }}</label>
 	<input
 		type="text" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default|encode }}"
+		{% if suggestions %}list="{{ tech-id }}_list"{% endif %}
 		{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
 		{% if constraints.pattern %}pattern="{{ constraints.pattern }}"{% endif %}
 	/>
+	{% if suggestions %}
+		<datalist id="{{ tech-id }}_list">
+		{% for v in suggestions %}
+			<option value="{{ v|encode }}"/>
+		{% endfor %}
+		</datalist>
+	{% endif %}
 {% case "longtext" %}
 	<label for="{{ tech-id }}">{{ label }}</label>
 	<textarea
