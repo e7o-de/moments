@@ -1,4 +1,4 @@
-<div class="form_{{ type }}">
+<div class="form_{{ type }}{% if class %} {{ class }}{% endif %}">
 {% switch type %}
 {% case "text" %}
 	<label for="{{ tech-id }}">{{ label }}</label>
