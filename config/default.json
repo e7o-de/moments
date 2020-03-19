@@ -2,6 +2,9 @@
 	"router": {
 		"class": "\\e7o\\Moments\\Request\\Routers\\SimpleRouter"
 	},
+	"error": {
+		"template": "error.htm"
+	},
 	"routes": [],
 	"services": {
 		"database": {

@@ -72,15 +72,27 @@ class MomentsController implements Controller
 			}
 			
 			return $returned;
-		} catch (\Exception $e) {
+		} catch (\Throwable $e) {
 			// TODO
 			if ($this->moment->getEnvironment() == 'dev') {
-				$t = '<p>Moments catched a controller exception:</p><h1>' .  $e->getMessage() . '</h1><pre>' . $e->getTraceAsString() . '</pre>';
+				$t = '<p>Moments catched an error in a controller:</p><h1>' .  $e->getMessage() . '</h1><pre>' . $e->getTraceAsString() . '</pre>';
 			} else {
-				$ref = md5(microtime() . rand(1, 100000));
-				// todo: nicer location or mail or so ;)
-				file_put_contents('/tmp/moments_' . $ref, $e->getMessage() . PHP_EOL . $e->getTraceAsString());
-				$t = '<p>Moments catched an exception with reference ' . $ref . ' (please mention that number when complaining)</p>';
+				$errhandler = $this->get('config')->get('error');
+				if (isset($errhandler['template'])) {
+					$a = [
+						'message' => $e->getMessage(),
+						'code' => $e->getCode(),
+						'line' => $e->getLine(),
+						'file' => $e->getFile(),
+						'trace' => $e->getTrace(),
+					];
+					$t = $this->template->render($errhandler['template'], $a);
+				} else {
+					$ref = md5(microtime() . rand(1, 100000));
+					// todo: nicer location or mail or so ;)
+					file_put_contents('/tmp/moments_' . $ref, $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+					$t = '<p>Moments catched an exception with reference ' . $ref . ' (please mention that number when complaining)</p>';
+				}
 			}
 			return new Response($t);
 		}

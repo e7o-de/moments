@@ -1,0 +1,22 @@
+{% macro showinfo %}
+<table>
+	<tr><td>Error:</td><td>{{ message }}</td></tr>
+	<tr><td>Location:</td><td>{{ file }}:{{ line }}</td></tr>
+	<tr>
+		<td>Stack:</td>
+		<td>
+			<ul>
+			{% for i in trace %}
+				<li>{{ i.file }}:{{ i.line }} ({{ i.function }})</li>
+			{% endfor %}
+			</ul>
+		</td>
+	</tr>
+</table>
+{% endmacro %}
+
+<h1>Ooops :(</h1>
+<p>Moments catched an error.</p>
+
+{{# Remove the # in the next line to see more error info. Not recommended for live environments. }}
+{{# showinfo() }}
