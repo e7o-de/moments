@@ -8,7 +8,7 @@ namespace e7o\Moments\Database;
 * 
 * - dsn -- just the plain DSN string
 * - type -- like "sqlite" or "mysql"
-* - host, dbname, charset # for e.g. mysql
+* - host, database, charset # for e.g. mysql
 * - file # for sqlite; should be something like "${root}/data/storage.sqlite"
 *   (absolute path required by sqlite connector)
 */
