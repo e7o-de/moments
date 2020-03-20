@@ -51,7 +51,7 @@ class Generator
 		$this->forms = $formsDirectory;
 	}
 	
-	public function build($form, array $options = [], array $data = [])
+	public function build($form, array $options = [], $data = [])
 	{
 		$formId = is_string($form) ? md5($form) : null;
 		$form = $this->readForm($form);
@@ -143,8 +143,10 @@ class Generator
 		}
 		
 		if ($data !== null) {
-			if (isset($data[$e['id']])) {
+			if (is_array($data) && isset($data[$e['id']])) {
 				$e['default'] = $data[$e['id']];
+			} else if ($data instanceof Request) {
+				$e['default'] = $data->getParameter($e['tech-id'], $e['default']);
 			}
 		}
 		
