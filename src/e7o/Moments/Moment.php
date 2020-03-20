@@ -13,6 +13,8 @@ class Moment
 	protected $baseDir;
 	protected $momentsBaseDir;
 	
+	private $serviceCache = [];
+	
 	public function __construct(string $baseDir)
 	{
 		$this->momentsBaseDir = realpath(__DIR__ . '/../../../');
@@ -32,6 +34,7 @@ class Moment
 		$this->router = new $routerClass($routes);
 		
 		$this->initServices();
+		$this->setService('config', $this->config);
 	}
 	
 	public function takePlace($request = null)
@@ -39,6 +42,8 @@ class Moment
 		if ($request === null) {
 			$request = new \e7o\Moments\Request\Request();
 		}
+		
+		$this->setService('request', $request);
 		
 		$response = $this->router->callController($this, $request);
 		$response->render();
@@ -52,22 +57,13 @@ class Moment
 	
 	public function getService(string $serviceName)
 	{
-		// TODO: Move out to own class
-		static $cache = [];
-		
-		// Workaround until we have explicit container stuff
-		switch ($serviceName) {
-			case 'config';
-				return $this->config;
-		}
-		
-		// Cache?
-		if (isset($cache[$serviceName])) {
-			return $cache[$serviceName];
+		// Cached?
+		if (!empty($this->serviceCache[$serviceName])) {
+			return $this->serviceCache[$serviceName];
 		}
 		
 		// Normal instantiation
-		if (isset($this->services[$serviceName])) {
+		if (!empty($this->services[$serviceName])) {
 			$service = $this->services[$serviceName];
 			if (is_object($service)) {
 				return $service;
@@ -83,7 +79,7 @@ class Moment
 				return null;
 			}
 			
-			$cache[$serviceName] = $instance;
+			$this->serviceCache[$serviceName] = $instance;
 			return $instance;
 		}
 		
@@ -103,6 +99,12 @@ class Moment
 			'router' => $this->router,
 		];
 		$this->services = $services;
+	}
+	
+	private function setService($name, $obj)
+	{
+		unset($this->serviceCache[$name]);
+		$this->services[$name] = $obj;
 	}
 	
 	private function assembleArgs(array $args)
