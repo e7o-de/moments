@@ -119,9 +119,9 @@ class Generator
 				if ($element['type'] == 'list') {
 					// Validate input against specified list values
 					if (!is_array($data)) {
-						$data = [$data];
+						$dataToCheck = [$data];
 					}
-					foreach ($data as $singleval) {
+					foreach ($dataToCheck as $singleval) {
 						if (!isset($element['options'][$singleval])) {
 							throw new \Exception('Element ' . $element['id'] . ' received invalid list value ' . $singleval);
 						}
