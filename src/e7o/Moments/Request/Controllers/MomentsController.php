@@ -53,10 +53,14 @@ class MomentsController implements Controller
 			
 			foreach ($method->getParameters() as $name) {
 				if (!isset($route['parameters'][$name->getName()])) {
-					throw new \Exception('Parameter ' . $name->getName() . ' unknown, maybe a typo');
+					if ($name->isOptional()) {
+						$args[] = $name->getDefaultValue();
+					} else {
+						throw new \Exception('Parameter ' . $name->getName() . ' unknown, maybe a typo');
+					}
+				} else {
+					$args[] = $route['parameters'][$name->getName()];
 				}
-				
-				$args[] = $route['parameters'][$name->getName()];
 			}
 			
 			$returned = $method->invokeArgs($this, $args);
