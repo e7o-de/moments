@@ -102,31 +102,36 @@ class Generator
 		foreach ($form as $element) {
 			$element = $this->fillUp($element);
 			$data = $request->getParameter($element['tech-id'], $element['default'] ?? null);
-			if ($element['type'] == 'file') {
-				// ToDo: Other constraints (like file type)
-			} else {
-				// Handle regular, easy constraints
-				if (isset($element['constraints']) && is_array($element['constraints'])) {
-					$constraints = $element['constraints'];
-					if (
-						isset($constraints['maxlength']) && strlen($data) > $constraints['maxlength']
-						|| isset($constraints['pattern']) && preg_match('/^' . $constraints['pattern'] . '$/', $data) == 0
-						|| isset($constraints['required']) && $constraints['required'] && strlen($data) == 0
-					) {
-						throw new \Exception('Form constraint not fullfilled on element ' . $element['id']);
-					}
-				}
-				if ($element['type'] == 'list') {
-					// Validate input against specified list values
-					if (!is_array($data)) {
-						$dataToCheck = [$data];
-					}
-					foreach ($dataToCheck as $singleval) {
-						if (!isset($element['options'][$singleval])) {
-							throw new \Exception('Element ' . $element['id'] . ' received invalid list value ' . $singleval);
+			switch ($element['type']) {
+				case 'file':
+					// ToDo: Other constraints (like file type)
+					break;
+				case 'bool':
+					$data = $data === '1';
+					break;
+				default:
+					// Handle regular, easy constraints
+					if (isset($element['constraints']) && is_array($element['constraints'])) {
+						$constraints = $element['constraints'];
+						if (
+							isset($constraints['maxlength']) && strlen($data) > $constraints['maxlength']
+							|| isset($constraints['pattern']) && preg_match('/^' . $constraints['pattern'] . '$/', $data) == 0
+							|| isset($constraints['required']) && $constraints['required'] && strlen($data) == 0
+						) {
+							throw new \Exception('Form constraint not fullfilled on element ' . $element['id']);
 						}
 					}
-				}
+					if ($element['type'] == 'list') {
+						// Validate input against specified list values
+						if (!is_array($data)) {
+							$dataToCheck = [$data];
+						}
+						foreach ($dataToCheck as $singleval) {
+							if (!isset($element['options'][$singleval])) {
+								throw new \Exception('Element ' . $element['id'] . ' received invalid list value ' . $singleval);
+							}
+						}
+					}
 			}
 			$collected[$element['id']] = $data;
 		}
