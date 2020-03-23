@@ -68,7 +68,6 @@ class Connection extends \PDO
 	*/
 	public function insert($table, $data)
 	{
-		var_dump(array_keys($data), $data);
 		$query = 'INSERT INTO ' . $table
 			. '(' . implode(', ', array_keys($data))
 			. ') VALUES (:' . implode(', :', array_keys($data)) . ')'
@@ -80,5 +79,20 @@ class Connection extends \PDO
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	* Simple helper to update one or more rows in database, take care of a correct
+	* WHERE clause (don't use 1=1 or so).
+	*/
+	public function update($table, $data, $where)
+	{
+		$fields = [];
+		foreach ($data as $field => $val) {
+			$fields[] = $field . ' = :' . $field;
+		}
+		$query = 'UPDATE ' . $table . ' SET ' . implode(', ', $fields) . ' WHERE ' . $where;
+		$q = $this->prepare($query);
+		return $q->execute($data);
 	}
 }
