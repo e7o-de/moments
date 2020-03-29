@@ -112,6 +112,7 @@ class MomentsController implements Controller
 		return [
 			'assets' => $this->request->getBasePath() . '/assets/',
 			'top' => $this->request->getBasePath() . '/',
+			'meta' => '', // TODO in future
 		];
 	}
 	

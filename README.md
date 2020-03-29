@@ -16,13 +16,25 @@ vendor/bin/init-moments
 
 Do your small homework (like creating a .gitignore for vendor/ amd so) and start
 
+== Template variables ==
+
+Some important variables:
+
+- `{{ $.meta }}` - all the important ressource and meta tag inclusion you don't
+  want to care about.
+- `{{ $.assets }}` - the path to where your personal assets (from public dir) are
+  placed.
+
 == Setup in nginx ==
 
 This is the approach you can go:
 
 ```
-location /your-project/public {
-	try_files $uri /your-project/public/index.php;
+location ~ /your-project/assets/(?<loc>.+) {
+		try_files $uri /your-project/public/assets/$loc;
+}
+location /your-project {
+		try_files $uri /your-project/public/index.php;
 }
 ```
 

@@ -44,28 +44,20 @@ class Request
 	/*
 	*	Works with this one:
 	*	
-	*	location /project/public {
+	*	location /project/ {
 	*		try_files $uri /project/public/index.php;
 	*	}
 	*/
 	private function buildPaths()
 	{
-		if (isset($_SERVER['REQUEST_URI']) && isset($_SERVER['SCRIPT_NAME'])) {
-			$path = substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
-			if (substr($_SERVER['REQUEST_URI'], 0, strlen($path)) == $path) {
-				$this->routingPath = $this->removeParams(substr($_SERVER['REQUEST_URI'], strlen($path)));
-				$fullPath = $_SERVER['REQUEST_URI'];
-			} else {
-				// TODO: Weird server configuration, mapping random urls to Moments
-				$this->routingPath = '__BROKEN_ROUTING_PATH_1';
-			}
-		} else {
-			// TODO: Shouldn't happen, please fix this: the server config is unknown until now :)
-			$this->routingPath = '__BROKEN_ROUTING_PATH_2';
-		}
-		$this->basePath = substr($fullPath, 0, -strlen($this->routingPath));
-		if (substr($this->basePath, -1, 1) == '/') {
+		// 17 == len(/public/index.php)
+		$this->basePath = substr($_SERVER['DOCUMENT_URI'], 0, -17);
+		if ($this->basePath[-1] == '/') {
 			$this->basePath = substr($this->basePath, 0, -1);
+		}
+		$this->routingPath = substr($_SERVER['REQUEST_URI'], strlen($this->basePath));
+		if (strlen($this->routingPath) == 0) {
+			$this->routingPath = '/';
 		}
 	}
 	

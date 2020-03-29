@@ -8,9 +8,10 @@
 	xsi:schemaLocation="http://www.w3.org/1999/xhtml http://www.w3.org/MarkUp/SCHEMA/xhtml11.xsd"
 >
 <head>
-	<link rel="stylesheet" type="text/css" media="all" href="assets/screen.css" />
-	<link rel="stylesheet" type="text/css" media="print" href="assets/print.css" />
-	<script src="assets/script.js" type="text/javascript"></script>
+	{{ $.meta }}
+	<link rel="stylesheet" type="text/css" media="all" href="{{ $.assets }}screen.css" />
+	<link rel="stylesheet" type="text/css" media="print" href="{{ $.assets }}print.css" />
+	<script src="{{ $.assets }}script.js" type="text/javascript"></script>
 </head>
 <body>
 
