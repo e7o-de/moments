@@ -15,3 +15,16 @@ vendor/bin/init-moments
 ```
 
 Do your small homework (like creating a .gitignore for vendor/ amd so) and start
+
+== Setup in nginx ==
+
+This is the approach you can go:
+
+```
+location /your-project/public {
+	try_files $uri /your-project/public/index.php;
+}
+```
+
+This is an example configuration for dev purposes, for production you should use
+`location /`, of course.
