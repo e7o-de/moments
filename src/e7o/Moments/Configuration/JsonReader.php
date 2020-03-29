@@ -8,9 +8,13 @@ class JsonReader implements Configuration
 	
 	public function __construct(string $configFile)
 	{
-		$this->config = json_decode(file_get_contents($configFile), true);
-		if ($this->config == null && json_last_error() != JSON_ERROR_NONE) {
-			throw new \Exception('Cannot parse ' . $configFile . ': ' . json_last_error_msg());
+		if (file_exists($configFile)) {
+			$this->config = json_decode(file_get_contents($configFile), true);
+			if ($this->config == null && json_last_error() != JSON_ERROR_NONE) {
+				throw new \Exception('Cannot parse ' . $configFile . ': ' . json_last_error_msg());
+			}
+		} else {
+			$this->config = [];
 		}
 	}
 	
