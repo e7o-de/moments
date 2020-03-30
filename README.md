@@ -1,11 +1,11 @@
-== About ==
+# About
 
 Moments is a small, young framework for building web applications. The focus is
 on less magic (no second code parser to figure out pseudo annotations),
 simplicity (no complex configurations if you don't need it) and a less-is-more
 approach: stuff is not tied too tightly into specifics of a framework.
 
-== Quickstart ==
+# Quickstart
 
 Just run:
 
@@ -16,7 +16,7 @@ vendor/bin/init-moments
 
 Do your small homework (like creating a .gitignore for vendor/ amd so) and start
 
-== Template variables ==
+# Template variables
 
 Some important variables:
 
@@ -25,7 +25,7 @@ Some important variables:
 - `{{ $.assets }}` - the path to where your personal assets (from public dir) are
   placed.
 
-== Setup in nginx ==
+# Setup in nginx
 
 This is the approach you can go:
 
