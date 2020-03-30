@@ -14,7 +14,15 @@ composer require e7o/moments
 vendor/bin/init-moments
 ```
 
-Do your small homework (like creating a .gitignore for vendor/ amd so) and start
+Do your small homework (like creating a .gitignore for vendor/ amd so) and start.
+
+For now you might have to add a composer.json with this before:
+
+```
+{
+    "minimum-stability": "dev"
+}
+```
 
 # Template variables
 
