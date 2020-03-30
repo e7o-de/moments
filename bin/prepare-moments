@@ -1,0 +1,5 @@
+#!/usr/bin/php
+<?php
+
+echo "Welcome to Moments!\n";
+echo "This script will do something useful soon :)";

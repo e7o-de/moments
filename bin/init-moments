@@ -85,6 +85,16 @@ if (!isset($composer['autoload']['psr-4'])) {
 }
 $composer['autoload']['psr-4'][substr($namespace, 1) . '\\'] = 'src' . str_replace('\\', '/', $namespace);
 
+// Adding preparation script
+if (!isset($composer['scripts'])) {
+	$composer['scripts'] = [];
+}
+if (!isset($composer['scripts']['post-update-cmd'])) {
+	$composer['scripts']['post-update-cmd'] = [];
+}
+$composer['scripts']['post-update-cmd'][] = 'vendor/bin/prepare-moments';
+$composer['scripts']['post-install-cmd'][] = 'vendor/bin/prepare-moments';
+
 file_put_contents($to . 'composer.json', json_encode($composer, JSON_PRETTY_PRINT));
 
 // Done
