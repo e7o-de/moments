@@ -1,5 +1,45 @@
 #!/usr/bin/php
 <?php
 
-echo "Welcome to Moments!\n";
-echo "This script will do something useful soon :)";
+echo "Preparing Moments components ...\n";
+
+$f = json_decode(file_get_contents('composer.json'), true);
+
+$gitignore = file_get_contents('.gitignore');
+if ($gitignore[-1] != "\n") {
+	$gitignore .= "\n";
+}
+$gitignoreChanged = false;
+
+foreach ($f['require'] as $project => $version) {
+	$dir = getcwd() . '/vendor/' . $project . '/';
+	$conf = $dir . 'moments-bundle.json';
+	if (file_exists($conf)) {
+		echo " - $project \n";
+		$f = json_decode(file_get_contents($conf), true);
+		
+		foreach ($f['assets'] ?? [] as $asset) {
+			$src = $dir . $asset['from'];
+			$dstPart = 'public/assets/' . $asset['to'];
+			$dst = getcwd() . '/' . $dstPart;
+			
+			if (file_exists($dst)) {
+				if (is_link($dst)) {
+					unlink($dst);
+				} else {
+					echo "   [ERR] Cannot create link, there's already something at\n   $dst";
+				}
+			}
+			symlink($src, $dst);
+			
+			if (strpos($gitignore, $dstPart) === false) {
+				$gitignore .= $dstPart . "/\n";
+				$gitignoreChanged = true;
+			}
+		}
+	}
+}
+
+if ($gitignoreChanged) {
+	file_put_contents('.gitignore', $gitignore);
+}
