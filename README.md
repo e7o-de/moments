@@ -25,7 +25,7 @@ seeing an error about minimum-stability:
 
 ```json
 {
-    "minimum-stability": "dev"
+	"minimum-stability": "dev"
 }
 ```
 
@@ -70,39 +70,36 @@ Your bundle has to have a `moments-bundle.json` with some valid json in it. In t
 this file could be empty, besides a `{}`.
 
 You can specify some stuff, like
-- in `scripts` a list of classes which should do some tasks before integration. Here
-  you can download the most recent version of a fancy JS library or so. It should be
+- in `scripts` a list of plain php scripts which should do some tasks before integration.
+  Here you can download the most recent version of a fancy JS library or so. It should be
   possible to write to the directories, as the script is run by composer.
 - in `assets` you can specify assets folders to symlink to the public directory.
   `from` is the path in your bundle, `to` the path in the assets directory
 - in `routes` some additional endpoints ...
-
-[Remark: Only assets is implemented right now.]
+- `include-scripts' and `include-styles' indicate which scripts should be automatically
+  included in the template (if the template is using `$.meta`). Don't forget to add
+  the correct asset dir name, as we don't use magic here.
+- `services` and `routes` will work as in every other config file as well.
 
 ```json
 {
-    "scripts": [
-        "\\Acme\\FancyBundle\\Bundle"
-    ],
-    "assets": [
-        {
-            "from": "assets",
-            "to": "fancy-bundle"
-        }
-    ]
+	"scripts": [
+		"fancy-setup-script.php"
+	],
+	"assets": [
+		{
+			"from": "assets",
+			"to": "fancy-bundle"
+		}
+	],
+	"include-scripts": [
+		"fancy-bundle/fancylib-latest.js"
+	],
+	"include-styles": [
+		"fancy-bundle/fancylib-latest.css"
+	]
 }
 ```
 
-The package needs a Bundle class:
-
-```php
-<?php
-
-namespace Acme\FancyBundle;
-
-class Bundle
-{
-}
-```
 The `prepare-moments` script will run after `composer install`, so it will integrate
 into the destination project at this point.

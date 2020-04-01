@@ -3,20 +3,44 @@
 
 echo "Preparing Moments components ...\n";
 
-$f = json_decode(file_get_contents('composer.json'), true);
-
 $gitignore = file_get_contents('.gitignore');
 if ($gitignore[-1] != "\n") {
 	$gitignore .= "\n";
 }
 $gitignoreChanged = false;
 
+function addToGitIgnore($file)
+{
+	global $gitignore, $gitignoreChanged;
+	if (strpos($gitignore, $file) === false) {
+		$gitignore .= $file . "\n";
+		$gitignoreChanged = true;
+	}
+}
+
+$bundleConf = [
+	'routes' => [],
+	'services' => [],
+	'bundles' => [],
+	'include-scripts' => [],
+	'include-styles' => [],
+];
+
+$f = json_decode(file_get_contents('composer.json'), true);
 foreach ($f['require'] as $project => $version) {
 	$dir = getcwd() . '/vendor/' . $project . '/';
 	$conf = $dir . 'moments-bundle.json';
 	if (file_exists($conf)) {
 		echo " - $project \n";
 		$f = json_decode(file_get_contents($conf), true);
+		
+		foreach ($f['scripts'] ?? [] as $script) {
+			include($dir . $script);
+		}
+		
+		$bundleConf['bundles'][] = $project;
+		$bundleConf['routes'] += $f['routes'] ?? [];
+		$bundleConf['services'] += $f['services'] ?? [];
 		
 		foreach ($f['assets'] ?? [] as $asset) {
 			$src = $dir . $asset['from'];
@@ -32,13 +56,22 @@ foreach ($f['require'] as $project => $version) {
 			}
 			symlink($src, $dst);
 			
-			if (strpos($gitignore, $dstPart) === false) {
-				$gitignore .= $dstPart . "/\n";
-				$gitignoreChanged = true;
-			}
+			addToGitIgnore($dstPart . '/');
+		}
+		
+		// Doesn't make sense to iterate through it yet, but some day we might compile
+		// SASS, LESS, TypeScript or something like that.
+		foreach ($f['include-scripts'] ?? [] as $asset) {
+			$bundleConf['include-scripts'][] = $asset;
+		}
+		foreach ($f['include-styles'] ?? [] as $asset) {
+			$bundleConf['include-styles'][] = $asset;
 		}
 	}
 }
+
+addToGitIgnore('config/bundles-generated.json');
+file_put_contents('config/bundles-generated.json', json_encode($bundleConf, JSON_PRETTY_PRINT));
 
 if ($gitignoreChanged) {
 	file_put_contents('.gitignore', $gitignore);

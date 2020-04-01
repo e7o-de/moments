@@ -14,6 +14,7 @@ class MomentsController implements Controller
 	private $moment;
 	private $template;
 	private $route;
+	private $metaCollected = [];
 	
 	public function __construct(Moment $moment)
 	{
@@ -115,8 +116,29 @@ class MomentsController implements Controller
 		return [
 			'assets' => $this->request->getBasePath() . '/assets/',
 			'top' => $this->request->getBasePath() . '/',
-			'meta' => '', // TODO in future
+			'meta' => implode(PHP_EOL, $this->getHeadHtml()),
 		];
+	}
+	
+	public function addMetaTag($name, $value)
+	{
+		$this->metaCollected[] = '<meta name="' . $name . '" content="' . htmlentities($value, null, 'UTF-8') . '" />';
+	}
+	
+	public function addScript($file)
+	{
+		$this->metaCollected[] = '<script src="' . $this->request->getBasePath() . '/assets/' . $file . '" type="text/javascript"></script>';
+	}
+	
+	public function addStylesheet($file)
+	{
+		$this->metaCollected[] = '<link rel="stylesheet" type="text/css" href="' . $this->request->getBasePath() . '/assets/' . $file . '" />';
+	}
+	
+	private function getHeadHtml()
+	{
+		$this->get('bundles')->addRequiredAssets($this);
+		return $this->metaCollected;
 	}
 	
 	protected function fallback($request, $rule)

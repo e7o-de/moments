@@ -2,6 +2,7 @@
 
 namespace e7o\Moments;
 
+use \e7o\Moments\Bundles\BundleManager;
 use \e7o\Moments\Configuration\AlternativeReader;
 use \e7o\Moments\Configuration\JsonReader;
 
@@ -12,6 +13,7 @@ class Moment
 	protected $services;
 	protected $baseDir;
 	protected $momentsBaseDir;
+	protected $bundleManager;
 	
 	private $serviceCache = [];
 	
@@ -29,8 +31,14 @@ class Moment
 		$credentialsConfig = new JsonReader($this->baseDir . '/config/credentials.json');
 		$this->config = new AlternativeReader($customConfig, $credentialsConfig, $defaultConfig);
 		
+		$this->bundleManager = new BundleManager($this->baseDir . '/config/bundles-generated.json');
+		
 		$routerClass = $this->config->getAll('router')['class'];
-		$routes = $this->config->getAll('routes');
+		$routes = array_merge(
+			$this->config->getAll('routes'),
+			$this->bundleManager->getRoutes()
+		);
+		
 		$this->router = new $routerClass($routes);
 		
 		$this->initServices();
@@ -93,11 +101,14 @@ class Moment
 	
 	private function initServices()
 	{
-		$services = $this->config->getAll('services');
-		$services += [
+		$services = [
+			'moment' => $this,
 			'router' => $this->router,
 			'config' => $this->config,
+			'bundles' => $this->bundleManager,
 		];
+		$services += $this->bundleManager->getServices();
+		$services += $this->config->getAll('services');
 		$this->services = $services;
 	}
 	
