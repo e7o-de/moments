@@ -61,7 +61,7 @@ class Request
 		}
 	}
 	
-	private function removeParams($uri)
+	private function removeParams(string $uri): string
 	{
 		$p = strpos($uri, '?');
 		if ($p !== false) {
@@ -70,9 +70,14 @@ class Request
 		return $uri;
 	}
 	
-	public function getHost()
+	public function getHost(): string
 	{
 		return $_SERVER['HTTP_HOST'];
+	}
+	
+	public function getProtocolPrefix(): string
+	{
+		return ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http') . '://';
 	}
 	
 	public function getBody()

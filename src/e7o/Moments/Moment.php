@@ -34,7 +34,6 @@ class Moment
 		$this->router = new $routerClass($routes);
 		
 		$this->initServices();
-		$this->setService('config', $this->config);
 	}
 	
 	public function takePlace($request = null)
@@ -97,6 +96,7 @@ class Moment
 		$services = $this->config->getAll('services');
 		$services += [
 			'router' => $this->router,
+			'config' => $this->config,
 		];
 		$this->services = $services;
 	}

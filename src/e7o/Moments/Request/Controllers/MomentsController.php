@@ -13,11 +13,12 @@ class MomentsController implements Controller
 	private $request;
 	private $moment;
 	private $template;
+	private $route;
 	
 	public function __construct(Moment $moment)
 	{
 		$this->moment = $moment;
-		$this->template = $moment->getService('template');
+		$this->template = $this->get('template');
 	}
 	
 	public function handleRequest(Request $request, $route): Response
@@ -32,6 +33,7 @@ class MomentsController implements Controller
 		}
 		
 		$this->request = $request;
+		$this->route = $route;
 		
 		try {
 			if (isset($route['require'])) {
@@ -39,9 +41,9 @@ class MomentsController implements Controller
 				foreach ($route['require'] as $type => $value) {
 					switch ($type) {
 						case 'user-group':
-							if (!$this->moment->getService('user_provider')->hasRights($value)) {
+							if (!$this->get('user_provider')->hasRights($value)) {
 								// todo: error handling if not existing
-								return $this->fallback($request, $this->moment->getService('config')->get('router', [])['on-unauthorized']);
+								return $this->fallback($request, $this->get('config')->get('router', [])['on-unauthorized']);
 							}
 							break;
 					}
@@ -120,8 +122,7 @@ class MomentsController implements Controller
 	{
 		if (isset($rule['delegate'])) {
 			return $this
-				->moment
-				->getService('router')
+				->get('router')
 				->callRoute($this->moment, $request, $rule['delegate'])
 			;
 		} else {
@@ -137,6 +138,19 @@ class MomentsController implements Controller
 	protected function getRouter(): Router
 	{
 		return $this->get('router');
+	}
+	
+	protected function getRoute(): array
+	{
+		return $this->route ?? [];
+	}
+	
+	/**
+	* Rebuilds the current route with new parameters.
+	*/
+	protected function rebuildRoute(array $params = [], bool $absolute = false)
+	{
+		return $this->get('router')->buildUrl($this->getRequest(), $this->route['id'], $params, $absolute);
 	}
 	
 	protected function get(string $service)

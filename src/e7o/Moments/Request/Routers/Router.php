@@ -10,6 +10,5 @@ interface Router
 {
 	public function callController(Moment $moment, Request $request): Response;
 	public function callRoute(Moment $moment, Request $request, $route): Response;
-	public function buildUrl(Request $request, string $route, array $params = []): string;
+	public function buildUrl(Request $request, string $route, array $params = [], bool $absolute = false): string;
 }
-

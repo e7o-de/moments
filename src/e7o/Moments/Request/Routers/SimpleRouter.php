@@ -86,7 +86,7 @@ class SimpleRouter implements Router
 	}
 	
 	// todo: provide an easier way to call without request for momentcontroller
-	public function buildUrl(Request $request, string $route, array $params = []): string
+	public function buildUrl(Request $request, string $route, array $params = [], bool $absolute = false): string
 	{
 		$route = $this->table[$route] ?? null;
 		if (empty($route)) {
@@ -99,6 +99,9 @@ class SimpleRouter implements Router
 		}
 		if (!empty($params)) {
 			$url .= '?' . http_build_query($params);
+		}
+		if ($absolute) {
+			$url = $request->getProtocolPrefix() . $request->getHost() . $url;
 		}
 		return $url;
 	}
