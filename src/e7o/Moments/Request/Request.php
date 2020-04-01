@@ -14,6 +14,11 @@ class Request
 		$this->body = file_get_contents('php://input');
 		$this->buildPaths();
 		$this->params = $_REQUEST + $_FILES;
+		if (($p = strpos($_SERVER['REQUEST_URI'], '?')) !== false) {
+			$urlparams = [];
+			parse_str(substr($_SERVER['REQUEST_URI'], $p + 1), $urlparams);
+			$this->params += $urlparams;
+		}
 		if ($_SERVER['CONTENT_TYPE'] == 'application/json' && strlen($this->body) > 0) {
 			$dec = json_decode($this->body, true);
 			if (strtolower($this->body) === 'null') {
