@@ -146,6 +146,11 @@ class MomentsController implements Controller
 		return $this->route ?? [];
 	}
 	
+	protected function getParameters(): array
+	{
+		return $this->getRoute()['parameters'] ?? [];
+	}
+	
 	/**
 	* Rebuilds the current route with new parameters.
 	*/
