@@ -23,7 +23,7 @@ use \e7o\Moments\Response\Response;
  */
 class SimpleRouter implements Router
 {
-	const MATCH_PATTERN = '[^/]+';
+	const MATCH_PATTERN = '[^/?]+';
 	private $table;
 	
 	public function __construct(array &$routingTable)
@@ -108,6 +108,10 @@ class SimpleRouter implements Router
 	
 	protected function unifyRoutingPath(string $path)
 	{
+		if (($p = strpos($path, '?')) !== false) {
+			$path = substr($path, 0, $p);
+		}
+		
 		if (substr($path, 0, 10) == '/index.php') {
 			$path = substr($path, 10);
 		}
