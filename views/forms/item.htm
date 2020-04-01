@@ -7,6 +7,7 @@
 		{% if suggestions %}list="{{ tech-id }}_list"{% endif %}
 		{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
 		{% if constraints.pattern %}pattern="{{ constraints.pattern }}"{% endif %}
+		{% if constraints.required %}required="required"{% endif %}
 	/>
 	{% if suggestions %}
 		<datalist id="{{ tech-id }}_list">
