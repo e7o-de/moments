@@ -151,7 +151,7 @@ class Generator
 			if (is_array($data) && isset($data[$e['id']])) {
 				$e['default'] = $data[$e['id']];
 			} else if ($data instanceof Request) {
-				$e['default'] = $data->getParameter($e['tech-id'], $e['default']);
+				$e['default'] = $data->getParameter($e['tech-id'], $e['default'] ?? null);
 			}
 		}
 		
