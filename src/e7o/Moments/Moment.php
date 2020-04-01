@@ -101,7 +101,7 @@ class Moment
 		$this->services = $services;
 	}
 	
-	private function setService($name, $obj)
+	public function setService($name, $obj)
 	{
 		unset($this->serviceCache[$name]);
 		$this->services[$name] = $obj;

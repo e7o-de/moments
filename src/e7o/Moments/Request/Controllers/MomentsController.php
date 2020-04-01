@@ -18,6 +18,7 @@ class MomentsController implements Controller
 	public function __construct(Moment $moment)
 	{
 		$this->moment = $moment;
+		$moment->setService('controller', $this);
 		$this->template = $this->get('template');
 	}
 	
