@@ -53,7 +53,7 @@ class Generator
 	
 	public function build($form, array $options = [], $data = [])
 	{
-		$formId = is_string($form) ? md5($form) : null;
+		$formId = is_string($form) ? $this->getTechId($form) : null;
 		$form = $this->readForm($form);
 		
 		$hasUploads = false;
@@ -88,7 +88,7 @@ class Generator
 	*/
 	public function hasFormData($form, Request $request): bool
 	{
-		return $request->getParameter('sender') === md5($form);
+		return $request->getParameter('sender') === $this->getTechId($form);
 	}
 	
 	/**
@@ -141,7 +141,7 @@ class Generator
 	
 	private function fillUp($e, &$data = null): array
 	{
-		$e['tech-id'] = md5($e['id']);
+		$e['tech-id'] = $this->getTechId($e['id']);
 		
 		if (isset($e['options']) && is_array($e['options']) && is_numeric(key($e['options']))) {
 			$e['default'] = array_search($e['default'], $e['options'], true);
@@ -156,6 +156,11 @@ class Generator
 		}
 		
 		return $e;
+	}
+	
+	private function getTechId($value)
+	{
+		return 'x' . md5($value);
 	}
 	
 	private function readForm($form): array
