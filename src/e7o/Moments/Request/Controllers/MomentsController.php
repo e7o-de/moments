@@ -178,7 +178,12 @@ class MomentsController implements Controller
 	*/
 	protected function rebuildRoute(array $params = [], bool $absolute = false)
 	{
-		return $this->get('router')->buildUrl($this->getRequest(), $this->route['id'], $params, $absolute);
+		return $this->buildRoute($this->route['id'], $params, $absolute);
+	}
+	
+	protected function buildRoute($routeId, array $params = [], bool $absolute = false)
+	{
+		return $this->get('router')->buildUrl($this->getRequest(), $routeId, $params, $absolute);
 	}
 	
 	protected function get(string $service)
