@@ -117,6 +117,8 @@ class Generator
 							isset($constraints['maxlength']) && strlen($data) > $constraints['maxlength']
 							|| isset($constraints['pattern']) && preg_match('/^' . $constraints['pattern'] . '$/', $data) == 0
 							|| isset($constraints['required']) && $constraints['required'] && strlen($data) == 0
+							|| isset($constraints['max']) && $data > $constraints['max']
+							|| isset($constraints['min']) && $data < $constraints['min']
 						) {
 							throw new \Exception('Form constraint not fullfilled on element ' . $element['id']);
 						}
@@ -131,6 +133,9 @@ class Generator
 								throw new \Exception('Element ' . $element['id'] . ' received invalid list value ' . $singleval);
 							}
 						}
+					}
+					if ($element['type'] == 'number' && !is_numeric($data)) {
+						throw new \Exception('Element ' . $element['id'] . ' is not numeric');
 					}
 			}
 			$collected[$element['id']] = $data;
