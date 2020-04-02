@@ -96,4 +96,14 @@ class Connection extends \PDO
 		$q = $this->prepare($query);
 		return $q->execute($data);
 	}
+	
+	/**
+	* Simple helper to delete rows. Take care of your where!
+	*/
+	public function delete($table, $where)
+	{
+		$query = 'DELETE FROM ' . $table . ' WHERE ' . $where;
+		$q = $this->prepare($query);
+		return $q->execute();
+	}
 }
