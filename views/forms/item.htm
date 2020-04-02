@@ -22,6 +22,16 @@
 		id="{{ tech-id }}" name="{{ tech-id }}"
 		{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
 	>{{ default|encode }}</textarea>
+{% case "number" %}
+	<label for="{{ tech-id }}">{{ label }}</label>
+	<input
+		type="range" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default }}"
+		{% if constraints.max %}max="{{ constraints.max }}"{% endif %}
+		{% if constraints.min %}min="{{ constraints.min }}"{% endif %}
+		{% if constraints.step %}step="{{ constraints.step }}"{% endif %}
+		oninput="{{ tech-id }}_output.value = {{ tech-id }}.value"
+	/>
+	<output name="{{ tech-id }}_output" for="{{ tech-id }}">{{ default }}</output>
 {% case "bool" %}
 	<input type="checkbox" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ 1 }}" {% if default %}checked="checked"{% endif %} />
 	<label for="{{ tech-id }}">{{ label }}</label>
