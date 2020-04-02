@@ -22,11 +22,23 @@ use \e7o\Moments\Request\Request;
 * 			"required": true,
 * 			"maxlength": 128, # for text inputs
 * 			"type": "image", # for file uploads
-* 		}
+* 		},
+*		"callback": "callback_name",
 * 	},
 * 	...
 * ]
 * ```
+* 
+* The `callback_name` function must be passed in the options of `build` and `evaluate`.
+* You need a callback in the form of `function (&$element) { ... }` or
+* `function ($element, &$data) { ... }`, you're allowed to modify the values in creation.
+* - `callback_name::creator` will be called on element creation, so here's the place to fill in e.g.
+*   the list for a select box from database, the time or anything else you can imagine.
+* - `callback_name::validator` is for validation. Providing a validator function will
+*   disable the internal validation process. This is highly recommended, as it has
+*   no idea about the allowed data in a list. If validation fails on your side, just
+*   throw an exception like the generator does itself as well. Btw, you could modify
+*   the `$data` argument as well if you find a use case for that.
 * 
 * Basic usage:
 * - Render the form with build()
@@ -60,6 +72,9 @@ class Generator
 		$result = [];
 		
 		foreach ($form as $element) {
+			if (!empty($element['callback']) && is_callable($options[$element['callback'] . '::creator'])) {
+				$options[$element['callback'] . '::creator']($element);
+			}
 			$element = $this->fillUp($element, $data);
 			if ($element['type'] == 'file') {
 				$hasUploads = true;
@@ -94,7 +109,7 @@ class Generator
 	/**
 	* Returns the user input as array, if all requirements are fullfilled.
 	*/
-	public function evaluate($form, Request $request): array
+	public function evaluate($form, Request $request, $options = []): array
 	{
 		$form = $this->readForm($form);
 		$collected = [];
@@ -102,6 +117,11 @@ class Generator
 		foreach ($form as $element) {
 			$element = $this->fillUp($element);
 			$data = $request->getParameter($element['tech-id'], $element['default'] ?? null);
+			$validated = false;
+			if (!empty($element['callback']) && is_callable($options[$element['callback'] . '::validator'])) {
+				$options[$element['callback'] . '::validator']($element, $data);
+				$validated = true;
+			}
 			switch ($element['type']) {
 				case 'file':
 					// ToDo: Other constraints (like file type)
@@ -110,6 +130,9 @@ class Generator
 					$data = $data === '1';
 					break;
 				default:
+					if ($validated) {
+						break;
+					}
 					// Handle regular, easy constraints
 					if (isset($element['constraints']) && is_array($element['constraints'])) {
 						$constraints = $element['constraints'];
