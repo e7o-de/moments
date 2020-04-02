@@ -39,7 +39,7 @@
 	<label for="{{ tech-id }}">{{ label }}</label>
 	<select id="{{ tech-id }}" name="{{ tech-id }}{% if multiple %}[]{% endif %}" {% if multiple %} multiple="multiple"{% endif %}>
 		{% for k, v in options %}
-			<option value="{{ k|encode }}" {% if k == default %} selected="selected"{% endif %}>{{ v|encode }}</option>
+			<option value="{{ k|encode }}" {% if k in default %}selected="selected"{% endif %}>{{ v|encode }}</option>
 		{% endfor %}
 	</select>
 {% case "file" %}

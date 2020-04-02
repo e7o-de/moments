@@ -72,10 +72,10 @@ class Generator
 		$result = [];
 		
 		foreach ($form as $element) {
+			$element = $this->fillUp($element, $data);
 			if (!empty($element['callback']) && is_callable($options[$element['callback'] . '::creator'])) {
 				$options[$element['callback'] . '::creator']($element);
 			}
-			$element = $this->fillUp($element, $data);
 			if ($element['type'] == 'file') {
 				$hasUploads = true;
 			}
@@ -181,6 +181,10 @@ class Generator
 			} else if ($data instanceof Request) {
 				$e['default'] = $data->getParameter($e['tech-id'], $e['default'] ?? null);
 			}
+		}
+		
+		if ($e['type'] == 'list' && !empty($e['default']) && !is_array($e['default'])) {
+			$e['default'] = [$e['default']];
 		}
 		
 		return $e;
