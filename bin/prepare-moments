@@ -56,7 +56,7 @@ foreach ($f['require'] as $project => $version) {
 			}
 			symlink($src, $dst);
 			
-			addToGitIgnore($dstPart . '/');
+			addToGitIgnore($dstPart);
 		}
 		
 		// Doesn't make sense to iterate through it yet, but some day we might compile
