@@ -6,6 +6,7 @@ use \e7o\Moments\Moment;
 use \e7o\Moments\Request\Request;
 use \e7o\Moments\Response\Response;
 use \e7o\Moments\Response\JsonResponse;
+use \e7o\Moments\Response\NullResponse;
 use \e7o\Moments\Request\Routers\Router;
 
 class MomentsController implements Controller
@@ -75,6 +76,8 @@ class MomentsController implements Controller
 				$returned = new Response($this->template->render($route['template'], $returned));
 			} else if (!empty($route['json'])) {
 				$returned = new JsonResponse($returned);
+			} else if ($returned === null) {
+				$returned = new NullResponse;
 			} else if (!($returned instanceof Response)) {
 				$returned = new Response($returned);
 			}
