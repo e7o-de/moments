@@ -34,31 +34,37 @@ class SimpleRouter implements Router
 	{
 		$processed = [];
 		foreach ($routingTable as $route) {
-			$route['route'] = $this->unifyRoutingPath($route['route']);
-			
-			if (strpos($route['route'], '{') !== false) {
-				$params = [];
-				$route['_route_match_regex'] =
-					'#'
-					. preg_replace_callback(
-						'#\{(' . static::MATCH_PATTERN . ')\}#',
-						function ($match) use (&$params) {
-							if ($p = strpos($match[1], ':') !== false) {
-								$pattern = substr($match[1], $p + 2);
-								$paramName = substr($match[1], 0, $p + 1);
-							} else {
-								$pattern = static::MATCH_PATTERN;
-								$paramName = $match[1];
-							}
-							$params[$paramName] = 'null';
-							return '(?<' . $paramName . '>' . $pattern . ')';
-						},
-						$route['route']
-					)
-					. '/?$#';
-				$route['parameters'] = $params;
-			} else {
+			if (empty($route['route'])) {
+				// Internal route, no URL available
+				$route['route'] = null;
 				$route['parameters'] = [];
+			} else {
+				$route['route'] = $this->unifyRoutingPath($route['route']);
+				
+				if (strpos($route['route'], '{') !== false) {
+					$params = [];
+					$route['_route_match_regex'] =
+						'#'
+						. preg_replace_callback(
+							'#\{(' . static::MATCH_PATTERN . ')\}#',
+							function ($match) use (&$params) {
+								if ($p = strpos($match[1], ':') !== false) {
+									$pattern = substr($match[1], $p + 2);
+									$paramName = substr($match[1], 0, $p + 1);
+								} else {
+									$pattern = static::MATCH_PATTERN;
+									$paramName = $match[1];
+								}
+								$params[$paramName] = 'null';
+								return '(?<' . $paramName . '>' . $pattern . ')';
+							},
+							$route['route']
+						)
+						. '/?$#';
+					$route['parameters'] = $params;
+				} else {
+					$route['parameters'] = [];
+				}
 			}
 			$processed[$route['id']] = $route;
 		}
@@ -83,7 +89,11 @@ class SimpleRouter implements Router
 		$route = $this->findRoute($path);
 		
 		if (empty($route)) {
-			throw new \Exception('This is a 404 :)');
+			if (isset($this->table['error-404'])) {
+				$route = $this->table['error-404'];
+			} else {
+				throw new \Exception('This is a 404 :)');
+			}
 		}
 		
 		return $this->callRoute($moment, $request, $route);

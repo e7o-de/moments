@@ -3,9 +3,16 @@
 		"class": "\\e7o\\Moments\\Request\\Routers\\SimpleRouter"
 	},
 	"error": {
-		"template": "error.htm"
+		"template": "error_500.htm"
 	},
-	"routes": [],
+	"routes": [
+		{
+			"id": "error-404",
+			"controller": "\\e7o\\Moments\\Request\\Controllers\\ErrorController",
+			"method": "noRouteAction",
+			"template": "error_404.htm"
+		}
+	],
 	"services": {
 		"database": {
 			"class": "\\e7o\\Moments\\Database\\Connection",

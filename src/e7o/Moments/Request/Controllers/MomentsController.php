@@ -94,6 +94,7 @@ class MomentsController implements Controller
 			if ($this->moment->getEnvironment() == 'dev') {
 				$t = '<p>Moments catched an error in a controller:</p><h1>' .  $e->getMessage() . '</h1><pre>' . $e->getTraceAsString() . '</pre>';
 			} else {
+				// TODO: use a route like with 404
 				$errhandler = $this->get('config')->get('error');
 				if (isset($errhandler['template'])) {
 					$a = [
