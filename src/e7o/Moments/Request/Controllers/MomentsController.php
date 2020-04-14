@@ -88,6 +88,10 @@ class MomentsController implements Controller
 				$returned = new Response($returned);
 			}
 			
+			if (!empty($route['responsecode'])) {
+				$returned->setResponseCode((int)$route['responsecode']);
+			}
+			
 			return $returned;
 		} catch (\Throwable $e) {
 			// TODO

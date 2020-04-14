@@ -10,7 +10,8 @@
 			"id": "error-404",
 			"controller": "\\e7o\\Moments\\Request\\Controllers\\ErrorController",
 			"method": "noRouteAction",
-			"template": "error_404.htm"
+			"template": "error_404.htm",
+			"responsecode": 404
 		}
 	],
 	"services": {
