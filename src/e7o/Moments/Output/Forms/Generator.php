@@ -24,6 +24,12 @@ use \e7o\Moments\Request\Request;
 * 			"type": "image", # for file uploads
 * 		},
 *		"callback": "callback_name",
+* 		"html": {
+* 			"beforeFrame": "...",
+* 			"beforeInput": "...",
+* 			"afterInput": "...",
+* 			"afterFrame": "...",
+* 		}
 * 	},
 * 	...
 * ]
