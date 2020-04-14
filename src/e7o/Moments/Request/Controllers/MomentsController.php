@@ -126,6 +126,9 @@ class MomentsController implements Controller
 			'assets' => $this->request->getBasePath() . '/assets/',
 			'top' => $this->request->getBasePath() . '/',
 			'meta' => implode(PHP_EOL, $this->getHeadHtml()),
+			'route' => [
+				'id' => $this->route['id'],
+			],
 		];
 	}
 	
