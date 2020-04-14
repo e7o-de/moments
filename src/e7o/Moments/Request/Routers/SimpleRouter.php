@@ -20,6 +20,10 @@ use \e7o\Moments\Response\Response;
  *		],
  *		...
  * ]
+ * 
+ * It's possible to pass a regex for the parameter:
+ * 
+ * 'route': '/article/{id:[1-9][0-9]*}'
  */
 class SimpleRouter implements Router
 {
@@ -39,12 +43,12 @@ class SimpleRouter implements Router
 					. preg_replace_callback(
 						'#\{(' . static::MATCH_PATTERN . ')\}#',
 						function ($match) use (&$params) {
-							$paramName = $match[1];
-							if ($paramName[0] == '*') {
-								$paramName = substr($paramName, 1);
-								$pattern = '.*';
+							if ($p = strpos($match[1], ':') !== false) {
+								$pattern = substr($match[1], $p + 2);
+								$paramName = substr($match[1], 0, $p + 1);
 							} else {
 								$pattern = static::MATCH_PATTERN;
+								$paramName = $match[1];
 							}
 							$params[$paramName] = 'null';
 							return '(?<' . $paramName . '>' . $pattern . ')';
