@@ -108,6 +108,7 @@ class MomentsController implements Controller
 						'file' => $e->getFile(),
 						'trace' => $e->getTrace(),
 					];
+					$this->initTemplate();
 					$t = $this->template->render($errhandler['template'], $a);
 				} else {
 					$ref = md5(microtime() . rand(1, 100000));
@@ -213,6 +214,10 @@ class MomentsController implements Controller
 	*/
 	private function initTemplate()
 	{
+		if (!empty($this->template)) {
+			return;
+		}
+		
 		$this->template = $this->get('template');
 		$t = $this;
 		$this->template->addFunction(
