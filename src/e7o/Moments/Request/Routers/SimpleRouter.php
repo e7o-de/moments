@@ -97,9 +97,18 @@ class SimpleRouter implements Router
 			throw new \Exception('Cannot build route: ' . $route);
 		}
 		$url = $request->getBasePath() . $route['route'];
-		foreach ($params as $key => $value) {
-			$url = preg_replace(['/\{' . $key . '(:[^}]+)?\}/'], urlencode($value), $url);
-			unset($params[$key]);
+		if (is_numeric(key($params))) {
+			// Just replace by given order
+			foreach ($params as $value) {
+				$url = preg_replace(['/\{[^}]+\}/'], urlencode($value), $url, 1);
+			}
+			$params = [];
+		} else {
+			// Replace by param name
+			foreach ($params as $key => $value) {
+				$url = preg_replace(['/\{' . $key . '(:[^}]+)?\}/'], urlencode($value), $url);
+				unset($params[$key]);
+			}
 		}
 		if (!empty($params)) {
 			$url .= '?' . http_build_query($params);

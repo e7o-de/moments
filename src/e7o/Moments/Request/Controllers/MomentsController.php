@@ -9,11 +9,14 @@ use \e7o\Moments\Response\JsonResponse;
 use \e7o\Moments\Response\NullResponse;
 use \e7o\Moments\Request\Routers\Router;
 
+use \e7o\Morosity\Executor\Handler;
+use \e7o\Morosity\Executor\VariableContext;
+
 class MomentsController implements Controller
 {
 	private $request;
 	private $moment;
-	private $template;
+	private $template = null;
 	private $route;
 	private $metaCollected = [];
 	
@@ -21,7 +24,6 @@ class MomentsController implements Controller
 	{
 		$this->moment = $moment;
 		$moment->setService('controller', $this);
-		$this->template = $this->get('template');
 	}
 	
 	public function handleRequest(Request $request, $route): Response
@@ -39,6 +41,10 @@ class MomentsController implements Controller
 		$this->route = $route;
 		
 		try {
+			if (!empty($route['template'])) {
+				$this->initTemplate();
+			}
+			
 			if (isset($route['require'])) {
 				// todo: refactor out
 				foreach ($route['require'] as $type => $value) {
@@ -192,5 +198,20 @@ class MomentsController implements Controller
 	protected function get(string $service)
 	{
 		return $this->moment->getService($service);
+	}
+	
+	/**
+	* Prepares the template renderer. Adds some magic, so templates can create routes etc.
+	*/
+	private function initTemplate()
+	{
+		$this->template = $this->get('template');
+		$t = $this;
+		$this->template->addFunction(
+			'route',
+			function ($routeId, ...$params) use ($t) {
+				return $t->buildRoute($routeId, $params);
+			}
+		);
 	}
 }
