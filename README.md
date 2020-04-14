@@ -103,3 +103,6 @@ You can specify some stuff, like
 
 The `prepare-moments` script will run after `composer install`, so it will integrate
 into the destination project at this point.
+
+Example required? Just add `e7o/moments-material-bundle`. This brings you some material design
+related fonts into your project.
