@@ -98,7 +98,7 @@ class SimpleRouter implements Router
 		}
 		$url = $request->getBasePath() . $route['route'];
 		foreach ($params as $key => $value) {
-			$url = str_replace(['{' . $key . '}', '{*' . $key . '}'], urlencode($value), $url);
+			$url = preg_replace(['/\{' . $key . '(:[^}]+)?\}/'], urlencode($value), $url);
 			unset($params[$key]);
 		}
 		if (!empty($params)) {
