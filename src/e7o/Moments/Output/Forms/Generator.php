@@ -79,7 +79,11 @@ class Generator
 		
 		foreach ($form as $element) {
 			$element = $this->fillUp($element, $data);
-			if (!empty($element['callback']) && is_callable($options[$element['callback'] . '::creator'])) {
+			if (
+				!empty($element['callback'])
+				&& !empty($options[$element['callback'] . '::creator'])
+				&& is_callable($options[$element['callback'] . '::creator'])
+			) {
 				$options[$element['callback'] . '::creator']($element);
 			}
 			if ($element['type'] == 'file') {
@@ -124,7 +128,11 @@ class Generator
 			$element = $this->fillUp($element);
 			$data = $request->getParameter($element['tech-id'], $element['default'] ?? null);
 			$validated = false;
-			if (!empty($element['callback']) && is_callable($options[$element['callback'] . '::validator'])) {
+			if (
+				!empty($element['callback'])
+				&& !empty($options[$element['callback'] . '::validator'])
+				&& is_callable($options[$element['callback'] . '::validator'])
+			) {
 				$options[$element['callback'] . '::validator']($element, $data);
 				$validated = true;
 			}
