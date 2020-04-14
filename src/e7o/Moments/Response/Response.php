@@ -23,6 +23,11 @@ class Response
 	public function render()
 	{
 		header('Content-Type: text/html');
-		echo $this->content;
+		if ($this->content instanceof \Closure) {
+			$c = $this->content;
+			$c();
+		} else {
+			echo $this->content;
+		}
 	}
 }

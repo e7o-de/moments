@@ -7,15 +7,22 @@ class FileResponse extends Response
 	protected $file;
 	protected $mime;
 	
-	public function __construct($file, $mime)
+	public function __construct($file, $mime = null)
 	{
-		$this->file = $file;;
+		$this->file = $file;
 		$this->mime = $mime;
 	}
 	
 	public function render()
 	{
-		header('Content-Type: ' . $this->mime);
-		readfile($this->file);
+		if ($this->mime !== null) {
+			header('Content-Type: ' . $this->mime);
+		}
+		if ($this->file instanceof \Closure) {
+			$f = $this->file;
+			$f();
+		} else {
+			readfile($this->file);
+		}
 	}
 }
