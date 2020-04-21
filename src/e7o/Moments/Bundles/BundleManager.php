@@ -19,14 +19,14 @@ class BundleManager
 		}
 	}
 	
-	public function getRoutes()
+	public function getRoutes(): array
 	{
-		return $this->conf['routes'];
+		return $this->conf['routes'] ?? [];
 	}
 	
-	public function getServices()
+	public function getServices(): array
 	{
-		return $this->conf['services'];
+		return $this->conf['services'] ?? [];
 	}
 	
 	public function addRequiredAssets(MomentsController $toController)
