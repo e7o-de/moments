@@ -26,13 +26,16 @@ class Moment
 		} else {
 			$this->baseDir = $baseDir;
 		}
-		$defaultConfig = new JsonReader(__DIR__ . '/../../../config/default.json');
-		$customConfig = new JsonReader($this->baseDir . '/config/config.json');
-		$credentialsConfig = new JsonReader($this->baseDir . '/config/credentials.json');
-		$this->config = new AlternativeReader($customConfig, $credentialsConfig, $defaultConfig);
-		
-		$this->bundleManager = new BundleManager($this->baseDir . '/config/bundles-generated.json');
-		
+		try {
+			$defaultConfig = new JsonReader(__DIR__ . '/../../../config/default.json');
+			$customConfig = new JsonReader($this->baseDir . '/config/config.json');
+			$credentialsConfig = new JsonReader($this->baseDir . '/config/credentials.json');
+			$this->config = new AlternativeReader($customConfig, $credentialsConfig, $defaultConfig);
+			
+			$this->bundleManager = new BundleManager($this->baseDir . '/config/bundles-generated.json');
+		} catch (\Exception $e) {
+			$this->outputEmergencyError($e);
+		}
 		$routerClass = $this->config->getAll('router')['class'];
 		$routes = array_merge(
 			$this->config->getAll('routes'),
@@ -150,5 +153,39 @@ class Moment
 			$arg = str_replace('${root}', $this->baseDir, $arg);
 			$arg = str_replace('${moments}', $this->momentsBaseDir, $arg);
 		}
+	}
+	
+	/**
+	* Emergency error message, which is shown, when the rendering infrastructure
+	* is not fully initialised (like on config file errors) and therefore there's
+	* no regular MomentsController nor routes or so. It can somehow render with
+	* style, but e.g. bundle css/scripts are missing.
+	*/
+	private function outputEmergencyError(\Exception $e)
+	{
+		$this->services['request'] = new \e7o\Moments\Request\Request();
+		$this->services['router'] = new \e7o\Moments\Request\Routers\EmergencyRouter();
+		$loader = new \e7o\Moments\Output\Template\MomentsLoader(
+			$this->baseDir . '/views',
+			$this->momentsBaseDir . '/views'
+		);
+		$this->services['template'] = new \e7o\Morosity\Morosity($loader);
+		$this->services['controller'] = new Request\Controllers\MomentsController($this);
+		\e7o\Moments\Output\Template\Functions::add($this->services['template'], $this->services['controller']);
+		$output = $this->services['template']->render(
+			'error_500.htm',
+			[
+				'message' => $e->getMessage(),
+				'code' => $e->getCode(),
+				'line' => $e->getLine(),
+				'file' => $e->getFile(),
+				'trace' => $e->getTrace(),
+				'assets' => $this->services['request']->getBasePath() . '/assets/',
+				'top' => $this->services['request']->getBasePath() . '/',
+			]
+		);
+		$response = new Response\Response($output);
+		$response->render();
+		die();
 	}
 }

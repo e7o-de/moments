@@ -171,22 +171,22 @@ class MomentsController implements Controller
 		}
 	}
 	
-	protected function getRequest(): Request
+	public function getRequest(): Request
 	{
-		return $this->request;
+		return $this->request ?? $this->get('request');
 	}
 	
-	protected function getRouter(): Router
+	public function getRouter(): Router
 	{
 		return $this->get('router');
 	}
 	
-	protected function getRoute(): array
+	public function getRoute(): array
 	{
 		return $this->route ?? [];
 	}
 	
-	protected function getParameters(): array
+	public function getParameters(): array
 	{
 		return $this->getRoute()['parameters'] ?? [];
 	}
@@ -194,17 +194,17 @@ class MomentsController implements Controller
 	/**
 	* Rebuilds the current route with new parameters.
 	*/
-	protected function rebuildRoute(array $params = [], bool $absolute = false)
+	public function rebuildRoute(array $params = [], bool $absolute = false)
 	{
 		return $this->buildRoute($this->route['id'], $params, $absolute);
 	}
 	
-	protected function buildRoute($routeId, array $params = [], bool $absolute = false)
+	public function buildRoute($routeId, array $params = [], bool $absolute = false)
 	{
 		return $this->get('router')->buildUrl($this->getRequest(), $routeId, $params, $absolute);
 	}
 	
-	protected function get(string $service)
+	public function get(string $service)
 	{
 		return $this->moment->getService($service);
 	}
@@ -219,12 +219,6 @@ class MomentsController implements Controller
 		}
 		
 		$this->template = $this->get('template');
-		$t = $this;
-		$this->template->addFunction(
-			'route',
-			function ($routeId, ...$params) use ($t) {
-				return $t->buildRoute($routeId, $params);
-			}
-		);
+		\e7o\Moments\Output\Template\Functions::add($this->template, $this);
 	}
 }
