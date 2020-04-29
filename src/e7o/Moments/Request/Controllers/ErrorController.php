@@ -8,4 +8,9 @@ class ErrorController extends MomentsController
 	{
 		return [];
 	}
+	
+	public function forbiddenAction()
+	{
+		return [];
+	}
 }

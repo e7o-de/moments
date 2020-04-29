@@ -51,6 +51,11 @@ Might not be completed or the best explanation yet. Also, don't forget to check 
 docblock comments of classes/methods before calling, they contain useful information
 as well. Some day that stuff will be collected in one place, but until then ...
 
+## Routes
+
+See docblock on `\e7o\Moments\Request\Routers\SimpleRouter` and the examples in
+`config/default.json`.
+
 ## Template variables
 
 Some important variables:
@@ -59,6 +64,64 @@ Some important variables:
   want to care about.
 - `{{ $.assets }}` - the path to where your personal assets (from public dir) are
   placed.
+
+## Login/Authentication
+
+Moments has a build-in authentication support, which you just have to fill with a connector
+to your user database or whatever. Feel free to put credentials in a ActiveDirectory
+or just in a simple text file.
+
+Btw, nobody is stopping you from ignoring this functionality and do your own checks on top
+of every controller action, if that's a legit use case.
+
+Important: You cannot combine the different methods (you can, somehow, but it's neither
+useful nor officially supported).
+
+### isAllowed() method
+
+If you extend from `MomentsController` (or, even better, from a `YourProjectController`, which is
+extending from `MomentsController`), you can just overwrite this method for a pretty basic
+check possibility (getRoute() and getRequest() are available at this time):
+
+```php
+public function isAllowed()
+{
+	return true;
+}
+```
+
+Depending on the return value, there'll be different actions possible.
+
+- `true` will just allow the request.
+- a `Response` will just output the response like in every other controller action.
+- a string response will take this route instead. This could be your login form which
+  sets a cookie you're checking in the method.
+- every other return value -- `false` is recommended -- will produce an error.
+
+### Authenticator class
+
+Create a service called `authenticator`. This has the advantage of being available
+in every controller.
+
+```javascript
+"authenticator": {
+	"class": "\\ACME\\YourProject\\Core\\Authenticator",
+	"args": ["@database"]
+}
+```
+
+You can extend from the `MomentsAuthenticator`:
+
+```
+use \e7o\Moments\Request\Authenticator as MomentsAuthenticator;
+```
+
+You don't have to implement everything, if you don't need a `getCurrentUser()`
+(because you do not differentiate), you can just ignore this one. Just overwrite
+everything you need.
+
+You can safely get the authenticator by calling `$this->getAuthenticator()` in your
+controller.
 
 ## Building a bundle
 

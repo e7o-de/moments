@@ -30,4 +30,9 @@ class EmergencyRouter implements Router
 	{
 		return $request->getBasePath();
 	}
+	
+	public function getRoute($routeId): ?array
+	{
+		return [];
+	}
 }

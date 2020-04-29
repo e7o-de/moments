@@ -99,6 +99,11 @@ class SimpleRouter implements Router
 		return $this->callRoute($moment, $request, $route);
 	}
 	
+	public function getRoute($routeId): ?array
+	{
+		return $this->table[$routeId] ?? null;
+	}
+	
 	// todo: provide an easier way to call without request for momentcontroller
 	public function buildUrl(Request $request, string $route, array $params = [], bool $absolute = false): string
 	{
