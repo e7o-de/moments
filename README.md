@@ -5,6 +5,19 @@ on less magic (no second code parser to figure out pseudo annotations),
 simplicity (no complex configurations if you don't need it) and a less-is-more
 approach: stuff is not tied too tightly into specifics of a framework.
 
+# Contribute?
+
+If you're interested, you're welcome! Easiest ways:
+
+- fork and do a pull request
+- create a bundle with your functionality
+- blog about the framework :)
+
+Please check how the coding style is (close to PSR-2, without the stupid things
+like the spaces instead of tabs). Please ensure your editor is configured to
+touch only lines you actually touched (no "kill all spaces and reformat the whole
+file" things). Do clean commits (one commit per functionality)!
+
 # Basic usage
 
 ## Quickstart
@@ -56,7 +69,9 @@ as well. Some day that stuff will be collected in one place, but until then ...
 See docblock on `\e7o\Moments\Request\Routers\SimpleRouter` and the examples in
 `config/default.json`.
 
-## Template variables
+## Template
+
+Moments is using Morosity.
 
 Some important variables:
 
@@ -64,6 +79,14 @@ Some important variables:
   want to care about.
 - `{{ $.assets }}` - the path to where your personal assets (from public dir) are
   placed.
+- `{{ $.route }}` - information about the current route. Especially `{{ $.route.requesturi }}`
+  is interesting for form actions etc.
+
+To build a route in template, you can use the `route` function:
+
+```
+{{ route('settings') }}
+```
 
 ## Login/Authentication
 
@@ -139,7 +162,7 @@ You can specify some stuff, like
 - in `assets` you can specify assets folders to symlink to the public directory.
   `from` is the path in your bundle, `to` the path in the assets directory
 - in `routes` some additional endpoints ...
-- `include-scripts' and `include-styles' indicate which scripts should be automatically
+- `include-scripts` and `include-styles' indicate which scripts should be automatically
   included in the template (if the template is using `$.meta`). Don't forget to add
   the correct asset dir name, as we don't use magic here.
 - `services` and `routes` will work as in every other config file as well.
