@@ -2,7 +2,7 @@
 
 namespace e7o\Moments\Request;
 
-class Request
+class Request implements \ArrayAccess
 {
 	protected $body;
 	protected $routingPath;
@@ -31,17 +31,17 @@ class Request
 		}
 	}
 	
-	public function getUrl()
+	public function getUrl(): string
 	{
 		return $_SERVER['REQUEST_URI'];
 	}
 	
-	public function getRoutingPath()
+	public function getRoutingPath(): string
 	{
 		return $this->routingPath;
 	}
 	
-	public function getBasePath()
+	public function getBasePath(): string
 	{
 		return $this->basePath;
 	}
@@ -90,14 +90,33 @@ class Request
 		return $this->body;
 	}
 	
-	public function getParameters()
+	public function getParameters(): array
 	{
 		return $this->params;
 	}
 	
-	public function getParameter($parameter, $default = null)
+	public function getParameter(string $parameter, $default = null)
 	{
 		return $this->params[$parameter] ?? $default;
 	}
+	
+	public function offsetExists($offset): bool
+	{
+		return isset($this->params[$parameter]);
+	}
+	
+	public function offsetGet($parameter)
+	{
+		return $this->getParameter($parameter);
+	}
+	
+	public function offsetSet($parameter, $value)
+	{
+		$this->params[$parameter] = $value;
+	}
+	
+	public function offsetUnset($parameter)
+	{
+		unset($this->params[$parameter]);
+	}
 }
-
