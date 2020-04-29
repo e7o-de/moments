@@ -84,7 +84,7 @@ class Generator
 				&& !empty($options[$element['callback'] . '::creator'])
 				&& is_callable($options[$element['callback'] . '::creator'])
 			) {
-				$options[$element['callback'] . '::creator']($element);
+				$options[$element['callback'] . '::creator']($element, $data);
 			}
 			if ($element['type'] == 'file') {
 				$hasUploads = true;
