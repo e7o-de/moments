@@ -30,11 +30,11 @@ use \e7o\Moments\Request\Request;
 */
 class SimpleConfigAuthenticator extends Authenticator
 {
-	private $users;
-	private $current = null;
-	private $secret;
-	private $config;
-	private $userCache = [];
+	protected $users;
+	protected $current = null;
+	protected $secret;
+	protected $config;
+	protected $userCache = [];
 	
 	/**
 	* Some options to overwrite HTML field names, if you really need to.
