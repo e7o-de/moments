@@ -33,6 +33,8 @@ class SimpleConfigAuthenticator extends Authenticator
 	private $users;
 	private $current = null;
 	private $secret;
+	private $config;
+	private $userCache = [];
 	
 	/**
 	* Some options to overwrite HTML field names, if you really need to.
@@ -43,9 +45,19 @@ class SimpleConfigAuthenticator extends Authenticator
 	
 	protected function init()
 	{
-		$config = $this->moment->getService('config');
-		$this->users = $config->get('users', []);
-		$this->secret = $config->get('secret', 'emergency-not-so-secret');
+		$this->config = $this->moment->getService('config');
+		$this->secret = $this->config->get('secret', 'emergency-not-so-secret');
+		$this->userCache = $this->config->get('users', []);
+	}
+	
+	/**
+	* This could be replaced by e.g. a database request getting the user
+	* password from a table. It's recommended to cache the value, as this
+	* method might get called twice (not an issue for a stupid array).
+	*/
+	protected function getUserPass($user)
+	{
+		return $this->userCache[$user] ?? null;
 	}
 	
 	public function getCurrentUser()
@@ -78,8 +90,8 @@ class SimpleConfigAuthenticator extends Authenticator
 		}
 		
 		// Check login
-		if (!empty($user) && !empty($password) && isset($this->users[$user])) {
-			if ($this->checkPassword($password, $this->users[$user])) {
+		if (!empty($user) && !empty($password) && $userpass = $this->getUserPass($user)) {
+			if ($this->checkPassword($password, $userpass)) {
 				$this->current = $user;
 				setcookie($this->cookieName, $this->getAuthCookieString($user, $password), time() + 86400);
 				return true;
@@ -121,6 +133,6 @@ class SimpleConfigAuthenticator extends Authenticator
 	
 	protected function hash($salt, $user)
 	{
-		return hash('whirlpool', $this->secret . $salt . $user . $this->users[$user]);
+		return hash('whirlpool', $this->secret . $salt . $user . $this->getUserPass($user));
 	}
 }
