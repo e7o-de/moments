@@ -91,7 +91,7 @@ class SimpleConfigAuthenticator extends Authenticator
 		
 		// Check login
 		if (!empty($user) && !empty($password) && $userpass = $this->getUserPass($user)) {
-			if ($this->checkPassword($password, $userpass)) {
+			if ($this->checkPassword($user, $password, $userpass)) {
 				$this->current = $user;
 				setcookie($this->cookieName, $this->getAuthCookieString($user, $password), time() + 86400);
 				return true;
@@ -109,7 +109,7 @@ class SimpleConfigAuthenticator extends Authenticator
 	/**
 	* Overwrite this to check e.g. the sha1 hash or so.
 	*/
-	protected function checkPassword($given, $expected)
+	protected function checkPassword($user, $given, $expected)
 	{
 		return $given === $expected;
 	}
