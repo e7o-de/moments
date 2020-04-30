@@ -129,14 +129,14 @@ in every controller.
 ```javascript
 "authenticator": {
 	"class": "\\ACME\\YourProject\\Core\\Authenticator",
-	"args": ["@database"]
+	"args": ["@moment"]
 }
 ```
 
 You can extend from the `MomentsAuthenticator`:
 
 ```
-use \e7o\Moments\Request\Authenticator as MomentsAuthenticator;
+use \e7o\Moments\Request\Authentication\Authenticator as MomentsAuthenticator;
 ```
 
 You don't have to implement everything, if you don't need a `getCurrentUser()`
@@ -162,7 +162,7 @@ You can specify some stuff, like
 - in `assets` you can specify assets folders to symlink to the public directory.
   `from` is the path in your bundle, `to` the path in the assets directory
 - in `routes` some additional endpoints ...
-- `include-scripts` and `include-styles' indicate which scripts should be automatically
+- `include-scripts` and `include-styles` indicate which scripts should be automatically
   included in the template (if the template is using `$.meta`). Don't forget to add
   the correct asset dir name, as we don't use magic here.
 - `services` and `routes` will work as in every other config file as well.

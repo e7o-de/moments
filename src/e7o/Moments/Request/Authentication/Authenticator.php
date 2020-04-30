@@ -1,17 +1,17 @@
 <?php
 
-namespace e7o\Moments\Request;
+namespace e7o\Moments\Request\Authentication;
 
-use \e7o\Moments\Database\Connection as DatabaseConnection;
+use \e7o\Moments\Moment;
 use \e7o\Moments\Request\Request;
 
 class Authenticator
 {
-	protected $database;
+	protected $moment;
 	
-	public function __construct(DatabaseConnection $database)
+	public function __construct(Moment $moment)
 	{
-		$this->database = $database;
+		$this->moment = $moment;
 	}
 	
 	/**
