@@ -83,7 +83,9 @@ class MomentsController implements Controller
 			
 			$returned = $method->invokeArgs($this, $args);
 			
-			if (!empty($route['template'])) {
+			if ($returned instanceof Response) {
+				// Skip, we have a Response object already
+			} else if (!empty($route['template'])) {
 				// todo: make real object with url builder, lazy evaluation etc.
 				$returned['$'] = $this->getTemplateVars();
 				$returned = new Response($this->template->render($route['template'], $returned));
