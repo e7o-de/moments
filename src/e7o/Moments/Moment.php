@@ -49,14 +49,18 @@ class Moment
 	
 	public function takePlace($request = null)
 	{
-		if ($request === null) {
-			$request = new \e7o\Moments\Request\Request();
+		try {
+			if ($request === null) {
+				$request = new \e7o\Moments\Request\Request();
+			}
+			
+			$this->setService('request', $request);
+			
+			$response = $this->router->callController($this, $request);
+			$response->render();
+		} catch (\Exception $e) {
+			$this->outputEmergencyError($e);
 		}
-		
-		$this->setService('request', $request);
-		
-		$response = $this->router->callController($this, $request);
-		$response->render();
 	}
 	
 	public function getEnvironment(): string
