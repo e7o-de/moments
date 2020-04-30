@@ -139,9 +139,17 @@ You can extend from the `MomentsAuthenticator`:
 use \e7o\Moments\Request\Authentication\Authenticator as MomentsAuthenticator;
 ```
 
+See `SimpleConfigAuthenticator` for an example implementation. You can also extend
+from that -- or just throw it into the service config if the defaults fit your needs
+(which is imaginable only for simple apps with very low security requirements).
+
 You don't have to implement everything, if you don't need a `getCurrentUser()`
 (because you do not differentiate), you can just ignore this one. Just overwrite
 everything you need.
+
+As you do have the `$route` parameter with all the data specified in the route, you
+can easily add your own custom parameters to the routes (like required "user groups",
+check ip addresses or allow access based on the current time).
 
 You can safely get the authenticator by calling `$this->getAuthenticator()` in your
 controller.

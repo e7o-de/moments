@@ -12,6 +12,14 @@ class Authenticator
 	public function __construct(Moment $moment)
 	{
 		$this->moment = $moment;
+		$this->init();
+	}
+	
+	/**
+	* For the lazy ones (saves a copy-and-paste of the constructor.)
+	*/
+	protected function init()
+	{
 	}
 	
 	/**
@@ -38,6 +46,15 @@ class Authenticator
 	public function isAllowed(Request $request, array $route): bool
 	{
 		return true;
+	}
+	
+	/**
+	* This is a method you should actually overwrite (nobody is forcing you
+	* if you're relying on session timeouts or so).
+	*/
+	public function logout()
+	{
+		// Nothing to do here.
 	}
 	
 	public function getAuthenticationRoute(): string

@@ -13,7 +13,7 @@ class Request implements \ArrayAccess
 	{
 		$this->body = file_get_contents('php://input');
 		$this->buildPaths();
-		$this->params = $_REQUEST + $_FILES;
+		$this->params = $_REQUEST + $_FILES + $_COOKIE;
 		if (($p = strpos($_SERVER['REQUEST_URI'], '?')) !== false) {
 			$urlparams = [];
 			parse_str(substr($_SERVER['REQUEST_URI'], $p + 1), $urlparams);

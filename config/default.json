@@ -1,4 +1,5 @@
 {
+	"secret": "change-me-in-your-config-as-i-am-not-secure",
 	"router": {
 		"class": "\\e7o\\Moments\\Request\\Routers\\SimpleRouter"
 	},
