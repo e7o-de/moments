@@ -83,6 +83,10 @@ class MomentsController implements Controller
 			
 			$returned = $method->invokeArgs($this, $args);
 			
+			if (!empty($route['meta'])) {
+				$this->handleMeta($route['meta']);
+			}
+			
 			if ($returned instanceof Response) {
 				// Skip, we have a Response object already
 			} else if (!empty($route['template'])) {
@@ -157,6 +161,17 @@ class MomentsController implements Controller
 		return $this->authenticator;
 	}
 	
+	protected function handleMeta($meta)
+	{
+		if (isset($meta['title'])) {
+			$this->setTitle($meta['title']);
+			unset($meta['title']);
+		}
+		foreach ($meta as $key => $value) {
+			$this->addMetaTag($key, $value);
+		}
+	}
+	
 	protected function getTemplateVars()
 	{
 		return [
@@ -169,6 +184,11 @@ class MomentsController implements Controller
 				'id' => $this->route['id'],
 			],
 		];
+	}
+	
+	public function setTitle($title)
+	{
+		$this->metaCollected['title'] = '<title>' . htmlentities($title, null, 'UTF-8') . '</title>';
 	}
 	
 	public function addMetaTag($name, $value)

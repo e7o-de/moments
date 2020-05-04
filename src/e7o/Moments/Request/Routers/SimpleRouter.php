@@ -17,6 +17,11 @@ use \e7o\Moments\Response\Response;
  *			'route' => '/test/{parameter}/',
  *			'controller' => MyController::class,
  *			'method' => 'testAction',
+ * 			'meta' => {
+ * 				'title': 'My fancy test page',
+ * 				'keywords': 'awesome,test'
+ * 			},
+ * 			'template': 'test.htm',
  *		],
  *		...
  * ]
