@@ -116,7 +116,7 @@ class MomentsController implements Controller
 			// TODO: use a route like with 404
 			$errhandler = $this->get('config')->get('error');
 			if (isset($errhandler['template'])) {
-				$a = [
+				$a = $this->getTemplateVars() + [
 					'message' => $e->getMessage(),
 					'code' => $e->getCode(),
 					'line' => $e->getLine(),
