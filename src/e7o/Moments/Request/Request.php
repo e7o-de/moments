@@ -100,7 +100,7 @@ class Request implements \ArrayAccess
 		return $this->params[$parameter] ?? $default;
 	}
 	
-	public function offsetExists($offset): bool
+	public function offsetExists($parameter): bool
 	{
 		return isset($this->params[$parameter]);
 	}
