@@ -86,7 +86,7 @@ class Connection extends \PDO
 	* Simple helper to update one or more rows in database, take care of a correct
 	* WHERE clause (don't use 1=1 or so).
 	*/
-	public function update($table, $data, $where)
+	public function update($table, $data, $where, $params = [])
 	{
 		$fields = [];
 		foreach ($data as $field => $val) {
@@ -94,7 +94,7 @@ class Connection extends \PDO
 		}
 		$query = 'UPDATE ' . $table . ' SET ' . implode(', ', $fields) . ' WHERE ' . $where;
 		$q = $this->prepare($query);
-		return $q->execute($data);
+		return $q->execute($data + $params);
 	}
 	
 	/**
