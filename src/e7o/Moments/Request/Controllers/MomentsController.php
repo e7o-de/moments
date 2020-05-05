@@ -34,15 +34,6 @@ class MomentsController implements Controller
 			$this->request = $request;
 			$this->route = $route;
 			
-			if (!isset($route['method'])) {
-				throw new \Exception('Cannot route without method given');
-			}
-			
-			$method = $route['method'];
-			if (!is_callable([$this, $method])) {
-				throw new \Exception('Cannot call method defined by route');
-			}
-			
 			$this->authenticator = $this->get('authenticator');
 			
 			$allowed = $this->isAllowed();
@@ -58,8 +49,24 @@ class MomentsController implements Controller
 			if ($this->authenticator !== null) {
 				$allowed = $this->authenticator->isAllowed($request, $route);
 				if ($allowed !== true) {
-					$route = $this->getRouter()->getRoute($this->authenticator->getAuthenticationRoute());
+					$this->route = $this->getRouter()->getRoute($this->authenticator->getAuthenticationRoute());
 				}
+			}
+			
+			// Changed routes?
+			if ($this->route['controller'] !== $route['controller']) {
+				// New controller responsibility!
+				return $this->getRouter()->callRoute($this->moment, $request, $this->route);
+			}
+			$route = $this->route;
+			
+			if (!isset($route['method'])) {
+				throw new \Exception('Cannot route without method given');
+			}
+			
+			$method = $route['method'];
+			if (!is_callable([$this, $method])) {
+				throw new \Exception('Cannot call method defined by route');
 			}
 			
 			if (!empty($route['template'])) {
@@ -74,7 +81,9 @@ class MomentsController implements Controller
 					if ($name->isOptional()) {
 						$args[] = $name->getDefaultValue();
 					} else {
-						throw new \Exception('Parameter ' . $name->getName() . ' unknown, maybe a typo');
+						throw new \Exception(
+							'Parameter ' . $name->getName() . ' for route ' . $route['id'] . ' unknown, maybe a typo'
+						);
 					}
 				} else {
 					$args[] = $route['parameters'][$name->getName()];
