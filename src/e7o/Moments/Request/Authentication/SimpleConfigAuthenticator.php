@@ -35,6 +35,7 @@ class SimpleConfigAuthenticator extends Authenticator
 	protected $secret;
 	protected $config;
 	protected $userCache = [];
+	protected $loginError = false;
 	
 	/**
 	* Some options to overwrite HTML field names, if you really need to.
@@ -70,13 +71,17 @@ class SimpleConfigAuthenticator extends Authenticator
 		return $this->current;
 	}
 	
+	public function wasUnsuccessfulLogin(): bool
+	{
+		return $this->loginError;
+	}
+	
 	public function isAllowed(Request $request, array $route): bool
 	{
 		$user = $request[$this->formFieldUser];
 		$password = $request[$this->formFieldPassword];
 		$auth = $request[$this->cookieName];
 		
-var_dump($auth);die;
 		// Check existing authentication
 		if (!empty($auth)) {
 			$user = $this->checkAuthCookieString($auth);
@@ -91,11 +96,14 @@ var_dump($auth);die;
 		}
 		
 		// Check login
-		if (!empty($user) && !empty($password) && $userpass = $this->getUserPass($user)) {
+		if (!empty($user) && !empty($password)) {
+			$userpass = $this->getUserPass($user);
 			if ($this->checkPassword($user, $password, $userpass)) {
 				$this->current = $user;
-				setcookie($this->cookieName, $this->getAuthCookieString($user, $password), time() + 86400);
+				$this->setAuthCookie();
 				return true;
+			} else {
+				$this->loginError = true;
 			}
 		}
 		
@@ -104,7 +112,15 @@ var_dump($auth);die;
 	
 	public function logout()
 	{
-		setcookie($this->cookieName, '', time() - 10);
+		$this->current = null;
+		$this->setAuthCookie();
+	}
+	
+	public function setAuthCookie()
+	{
+		$new = $this->getAuthCookieString($this->current, $this->getUserPass($this->current));
+		$exp = empty($this->current) ? time() - 10 : time() + 86400;
+		setcookie($this->cookieName, $new, $exp, '/');
 	}
 	
 	/**
@@ -113,6 +129,22 @@ var_dump($auth);die;
 	protected function checkPassword($user, $given, $expected)
 	{
 		return $given === $expected;
+	}
+	
+	/**
+	* Doesn't make sense here, it's just there for demonstration purposes. As we include
+	* the password in the auth hash, another auth has to happen after the change (otherwise
+	* the user is just logged out).
+	*/
+	public function changePassword($user, $password)
+	{
+		$this->userCache[$user] = $password;
+		
+		if ($user === $this->current) {
+			$this->setAuthCookie();
+		}
+		
+		return true;
 	}
 	
 	protected function getAuthCookieString($user)
@@ -125,7 +157,7 @@ var_dump($auth);die;
 	{
 		list($salt, $user, $hash) = explode(':', $string);
 		$expected = $this->hash($salt, $user);
-		if ($expected == $hash) {
+		if ($expected === $hash) {
 			return $user;
 		} else {
 			return null;

@@ -49,6 +49,14 @@ class Authenticator
 	}
 	
 	/**
+	* Returns true if there was a failed login try (means: show error message to user)
+	*/
+	public function wasUnsuccessfulLogin(): bool
+	{
+		return false;
+	}
+	
+	/**
 	* This is a method you should actually overwrite (nobody is forcing you
 	* if you're relying on session timeouts or so).
 	*/
