@@ -64,6 +64,36 @@ Might not be completed or the best explanation yet. Also, don't forget to check 
 docblock comments of classes/methods before calling, they contain useful information
 as well. Some day that stuff will be collected in one place, but until then ...
 
+## Data directories
+
+For files and directories just used for storing data, you can specify in
+`config/files.json` an automatic creation and chmodding:
+
+```javascript
+[
+	{
+		"type": "directory",
+		"name": "data",
+		"chmod": "0766"
+	},
+	{
+		"type": "file",
+		"name": "logfile.txt",
+		"chmod": "0123",
+		"chown": "www-data"
+	},
+	{
+		"type": "file",
+		"name": "data.sqlite",
+		"copy": "bin/database-template.sqlite"
+	}
+],
+```
+
+It will not overwrite or delete existing files/directories. It will, however, change
+the access rights, so you can commit some contents to your repository and still ensure
+it's writeable. However, it might be, that you have to be root for the chown operation.
+
 ## Routes
 
 See docblock on `\e7o\Moments\Request\Routers\SimpleRouter` and the examples in

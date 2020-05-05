@@ -18,6 +18,48 @@ function addToGitIgnore($file)
 	}
 }
 
+if (file_exists('config/files.json')) {
+	$f = json_decode(file_get_contents('config/files.json'), true);
+	foreach (($f ?? []) as $file => $desired) {
+		if (empty($desired['name'])) {
+			echo " [ERR] Invalid entry in config\n";
+			print_r($desired);
+		}
+		if (!file_exists($desired['name'])) {
+			echo " - Missing ${desired['name']}, creating it\n";
+			switch ($desired['type']) {
+				case 'dir':
+				case 'directory':
+				case 'folder':
+					mkdir($desired['name'], 0777, true);
+					break;
+				case 'file':
+					$content = '';
+					if (!empty($desired['content'])) {
+						$content = $desired['content'];
+					}
+					if (!empty($desired['copy'])) {
+						copy($desired['copy'], $desired['name']);
+					} else {
+						file_put_contents($desired['name'], $content);
+					}
+					break;
+			}
+			continue;
+		}
+		if (!empty($desired['chmod'])) {
+			if ($desired['chmod'][0] === '0') {
+				// JSON cannot handle octal numbers, so it's a string we have to convert
+				$desired['chmod'] = octdec(substr($desired['chmod'], 1));
+			}
+			chmod($desired['name'], $desired['chmod']);
+		}
+		if (!empty($desired['chown'])) {
+			chown($desired['name'], $desired['chown']);
+		}
+	}
+}
+
 $bundleConf = [
 	'routes' => [],
 	'services' => [],
