@@ -76,11 +76,12 @@ class SimpleConfigAuthenticator extends Authenticator
 		$password = $request[$this->formFieldPassword];
 		$auth = $request[$this->cookieName];
 		
+var_dump($auth);die;
 		// Check existing authentication
 		if (!empty($auth)) {
 			$user = $this->checkAuthCookieString($auth);
 			if (!empty($user)) {
-				// Idendified based on existing cookie
+				// Identified based on existing cookie
 				$this->current = $user;
 				return true;
 			} else {
