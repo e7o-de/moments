@@ -18,6 +18,21 @@ function addToGitIgnore($file)
 	}
 }
 
+function mergeArray($arr, $add)
+{
+	foreach ($add as $key => $value) {
+		if (!isset($arr[$key])) {
+			$arr[$key] = [];
+		}
+		if (is_array($value)) {
+			$arr[$key] = array_merge($arr[$key], $value);
+		} else {
+			$arr[$key][] = $value;
+		}
+	}
+	return $arr;
+}
+
 if (file_exists('config/files.json')) {
 	$f = json_decode(file_get_contents('config/files.json'), true);
 	foreach (($f ?? []) as $file => $desired) {
@@ -66,6 +81,7 @@ $bundleConf = [
 	'bundles' => [],
 	'include-scripts' => [],
 	'include-styles' => [],
+	'events' => [],
 ];
 
 $f = json_decode(file_get_contents('composer.json'), true);
@@ -83,6 +99,9 @@ foreach ($f['require'] as $project => $version) {
 		$bundleConf['bundles'][] = $project;
 		$bundleConf['routes'] += $f['routes'] ?? [];
 		$bundleConf['services'] += $f['services'] ?? [];
+		
+		
+		$bundleConf['events'] = mergeArray($bundleConf['events'], $f['events'] ?? []);
 		
 		foreach ($f['assets'] ?? [] as $asset) {
 			$src = $dir . $asset['from'];

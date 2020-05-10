@@ -6,6 +6,8 @@
 	"error": {
 		"template": "error_500.htm"
 	},
+	"events": {
+	},
 	"routes": [
 		{
 			"id": "error-404",

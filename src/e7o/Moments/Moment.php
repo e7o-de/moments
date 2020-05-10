@@ -27,20 +27,18 @@ class Moment
 			$this->baseDir = $baseDir;
 		}
 		try {
-			$defaultConfig = new JsonReader(__DIR__ . '/../../../config/default.json');
-			$customConfig = new JsonReader($this->baseDir . '/config/config.json');
-			$credentialsConfig = new JsonReader($this->baseDir . '/config/credentials.json');
-			$this->config = new AlternativeReader($customConfig, $credentialsConfig, $defaultConfig);
-			
 			$this->bundleManager = new BundleManager($this->baseDir . '/config/bundles-generated.json');
+			$this->config = new AlternativeReader(
+				new JsonReader($this->baseDir . '/config/config.json'),
+				new JsonReader($this->baseDir . '/config/credentials.json'),
+				new JsonReader(__DIR__ . '/../../../config/default.json'),
+				$this->bundleManager
+			);
 		} catch (\Exception $e) {
 			$this->outputEmergencyError($e);
 		}
 		$routerClass = $this->config->getAll('router')['class'];
-		$routes = array_merge(
-			$this->config->getAll('routes'),
-			$this->bundleManager->getRoutes()
-		);
+		$routes = $this->config->getAll('routes');
 		
 		$this->router = new $routerClass($routes);
 		
@@ -114,7 +112,6 @@ class Moment
 			'config' => $this->config,
 			'bundles' => $this->bundleManager,
 		];
-		$services += $this->bundleManager->getServices();
 		$services += $this->config->getAll('services');
 		$this->services = $services;
 	}
@@ -123,6 +120,19 @@ class Moment
 	{
 		unset($this->serviceCache[$name]);
 		$this->services[$name] = $obj;
+	}
+	
+	public function callEvents(string $event, ...$args)
+	{
+		$all = $this->config->getAll('events')[$event] ?? [];
+		foreach ($all as $event) {
+			list($class, $method) = explode('::', $event, 2);
+			$args = $class::$method($this, ...$args);
+			if (!is_array($args)) {
+				$args = [$args];
+			}
+		}
+		return $args;
 	}
 	
 	private function assembleArgs(array $args)

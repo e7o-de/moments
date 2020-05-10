@@ -20,6 +20,12 @@ file" things). Do clean commits (one commit per functionality)!
 
 # Basic usage
 
+## Terms
+
+There's only one important/not-common term important: `moment`. A moment equals basically
+the page request itself and handles "everything". It also is the container where
+you can get the services from.
+
 ## Quickstart
 
 Just run:
@@ -31,7 +37,10 @@ vendor/bin/init-moments
 
 This will modify/create your `composer.json`, create some scripts, place some
 general template so you can start and adds a routing. Do your small homework
-(like creating a `.gitignore` for vendor/ and so) and just go.
+(like creating a `.gitignore` for vendor/ and so) and just go ahead. Don'T forget
+to check the created config file, as there might be some example entries you
+don't need or want, as they'll consume a little bit of CPU time (like the HTML
+formatter).
 
 For now you might have to add a `composer.json` with this before when you're
 seeing an error about minimum-stability:
@@ -208,9 +217,6 @@ You can specify some stuff, like
 
 ```json
 {
-	"scripts": [
-		"fancy-setup-script.php"
-	],
 	"assets": [
 		{
 			"from": "assets",
@@ -231,3 +237,49 @@ into the destination project at this point.
 
 Example required? Just add `e7o/moments-material-bundle`. This brings you some material design
 related fonts into your project.
+
+## Events
+
+Main usecase is related to bundles. As Moments itself is a bundle as well, you can use some
+of the predefined example events by specifying them in your config:
+
+```json
+"events": {
+	"output:html": [
+		"\\e7o\\Moments\\Events\\OutputEvents::formatHtml"
+	]
+}
+```
+
+(This `formatHTML` uses the libxml formatting, which is kind of chaotic, so it's not
+recommended for production usage.)
+
+The functions must be static, but can instantiate objects.
+
+Otherwise, can specify them in your bundle configuration like this:
+
+```json
+"events": {
+	"output:html": [
+		"\\ACME\\FancyBundle\\Events::randomEvent",
+	]
+}
+```
+
+Available events (the Moment itself will be passed in any case as first argument,
+but it's not listed in the following parameter lists):
+
+- authentication
+  - `authentication:failed($user)` and `authentication:succeeded($user)` will be fired
+    on the corresponding happening (at least as long the methods of authenticator
+    are not overwritten (or at least called with `parent::`))
+- output
+  - `output:html (string $html):string` - post-processing of your rendered template
+    (works only there, if you return a `Response` object, it won't fire, as Moments
+    doesn't know, what it produces).
+- controller
+  - `controller:finished($controller, $returned)` - after controller was called,
+    before output. Allows you to call `addMetaTag` etc.
+
+If you specify your own events in your bundle or config, you can also call them
+just with `$moment->callEvents($name, ...$args)`.

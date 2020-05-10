@@ -34,7 +34,7 @@ class AlternativeReader implements Configuration
 		foreach ($this->configs as $config) {
 			$value = $config->get($name, null);
 			if ($value !== null) {
-				$values = array_merge($values, $value);
+				$values = array_merge_recursive($values, $value);
 			}
 		}
 		

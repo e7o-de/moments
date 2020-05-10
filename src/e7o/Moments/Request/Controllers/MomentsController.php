@@ -92,6 +92,7 @@ class MomentsController implements Controller
 			}
 			
 			$returned = $method->invokeArgs($this, $args);
+			$this->moment->callEvents('controller:finished', $this, $returned);
 			
 			if (!empty($route['meta'])) {
 				$this->handleMeta($route['meta']);
@@ -102,7 +103,9 @@ class MomentsController implements Controller
 			} else if (!empty($route['template'])) {
 				// todo: make real object with url builder, lazy evaluation etc.
 				$returned['$'] = $this->getTemplateVars();
-				$returned = new Response($this->template->render($route['template'], $returned));
+				$html = $this->template->render($route['template'], $returned);
+				$html = $this->moment->callEvents('output:html', $html)[0];
+				$returned = new Response($html);
 			} else if (!empty($route['json'])) {
 				$returned = new JsonResponse($returned);
 			} else if ($returned === null) {

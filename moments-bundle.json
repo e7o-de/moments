@@ -1,5 +1,7 @@
 {
-	"scripts": [],
+	"events": {
+		"": [],
+	},
 	"assets": [
 		{
 			"from": "assets",

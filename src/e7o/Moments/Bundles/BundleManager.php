@@ -3,8 +3,9 @@
 namespace e7o\Moments\Bundles;
 
 use \e7o\Moments\Request\Controllers\MomentsController;
+use \e7o\Moments\Configuration\Configuration;
 
-class BundleManager
+class BundleManager implements Configuration
 {
 	private $conf;
 	
@@ -19,14 +20,9 @@ class BundleManager
 		}
 	}
 	
-	public function getRoutes(): array
+	public function get(string $name, $default = null)
 	{
-		return $this->conf['routes'] ?? [];
-	}
-	
-	public function getServices(): array
-	{
-		return $this->conf['services'] ?? [];
+		return $this->conf[$name] ?? $default;
 	}
 	
 	public function addRequiredAssets(MomentsController $toController)

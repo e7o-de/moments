@@ -83,6 +83,7 @@ class Authenticator
 	*/
 	protected function failedLogin($user)
 	{
+		$this->moment->callEvents('authentication:failed', $user);
 	}
 	
 	/**
@@ -91,6 +92,7 @@ class Authenticator
 	*/
 	protected function succeededLogin($user)
 	{
+		$this->moment->callEvents('authentication:succeeded', $user);
 	}
 	
 	/**
