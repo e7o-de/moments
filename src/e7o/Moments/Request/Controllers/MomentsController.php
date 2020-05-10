@@ -208,12 +208,12 @@ class MomentsController implements Controller
 	
 	public function addScript($file)
 	{
-		$this->metaCollected[] = '<script src="' . $this->request->getBasePath() . '/assets/' . $file . '" type="text/javascript"></script>';
+		$this->metaCollected[md5($file)] = '<script src="' . $this->request->getBasePath() . '/assets/' . $file . '" type="text/javascript"></script>';
 	}
 	
 	public function addStylesheet($file)
 	{
-		$this->metaCollected[] = '<link rel="stylesheet" type="text/css" href="' . $this->request->getBasePath() . '/assets/' . $file . '" />';
+		$this->metaCollected[md5($file)] = '<link rel="stylesheet" type="text/css" href="' . $this->request->getBasePath() . '/assets/' . $file . '" />';
 	}
 	
 	private function getHeadHtml()
