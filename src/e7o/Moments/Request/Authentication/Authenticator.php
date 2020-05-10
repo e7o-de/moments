@@ -23,6 +23,17 @@ class Authenticator
 	}
 	
 	/**
+	* Initialises the current user information (like doing the login/logout process).
+	* The route is available, but it could still change at this point due to redirects.
+	* Take care, this method can get called twice in such cases. For "normal"
+	* implementations this would be just a duplicate database request (if you don'T cache),
+	* if you're relying on $route, you should be very careful and reset stuff first.
+	*/
+	public function checkLogin(Request $request, array $route)
+	{
+	}
+	
+	/**
 	* For use in controllers.
 	*/
 	public function getCurrentUser()
@@ -41,9 +52,19 @@ class Authenticator
 	}
 	
 	/**
-	* Just returns the info if the request is allowed or not.
+	* Just returns the info if the request to the given route is allowed or not.
+	* As you have the route, you can put `"requireGroup": "admin"` or so in your
+	* config file and compare here.
 	*/
 	public function isAllowed(Request $request, array $route): bool
+	{
+		return true;
+	}
+	
+	/**
+	* Checks if the user has the `$right`, whatever this is.
+	*/
+	public function hasRights($right): bool
 	{
 		return true;
 	}
@@ -54,6 +75,22 @@ class Authenticator
 	public function wasUnsuccessfulLogin(): bool
 	{
 		return false;
+	}
+	
+	/**
+	* Is called in case of a failed login (wrong password). Your turn to take further
+	* actions like banning the IP address or user account or so.
+	*/
+	protected function failedLogin($user)
+	{
+	}
+	
+	/**
+	* Called on a successful login. Send a welcome email, log the access, reset
+	* counters ...
+	*/
+	protected function succeededLogin($user)
+	{
 	}
 	
 	/**

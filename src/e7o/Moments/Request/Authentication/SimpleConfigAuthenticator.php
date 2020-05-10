@@ -76,7 +76,7 @@ class SimpleConfigAuthenticator extends Authenticator
 		return $this->loginError;
 	}
 	
-	public function isAllowed(Request $request, array $route): bool
+	public function checkLogin(Request $request, array $route)
 	{
 		$user = $request[$this->formFieldUser];
 		$password = $request[$this->formFieldPassword];
@@ -88,7 +88,6 @@ class SimpleConfigAuthenticator extends Authenticator
 			if (!empty($user)) {
 				// Identified based on existing cookie
 				$this->current = $user;
-				return true;
 			} else {
 				// Remove invalid cookie
 				$this->logout();
@@ -101,13 +100,17 @@ class SimpleConfigAuthenticator extends Authenticator
 			if ($this->checkPassword($user, $password, $userpass)) {
 				$this->current = $user;
 				$this->setAuthCookie();
-				return true;
+				$this->succeededLogin($user);
 			} else {
+				$this->failedLogin($user);
 				$this->loginError = true;
 			}
 		}
-		
-		return false;
+	}
+	
+	public function isAllowed(Request $request, array $route): bool
+	{
+		return !empty($this->current);
 	}
 	
 	public function logout()

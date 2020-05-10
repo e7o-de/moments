@@ -169,9 +169,10 @@ You can extend from the `MomentsAuthenticator`:
 use \e7o\Moments\Request\Authentication\Authenticator as MomentsAuthenticator;
 ```
 
-See `SimpleConfigAuthenticator` for an example implementation. You can also extend
-from that -- or just throw it into the service config if the defaults fit your needs
-(which is imaginable only for simple apps with very low security requirements).
+See `SimpleConfigAuthenticator` and `SimpleDatabaseAuthenticator` for example
+implementations. You can also extend from them -- or just throw one of them into
+the service config if the defaults fit your needs (check the security they're
+providing, it's not the highest standard).
 
 You don't have to implement everything, if you don't need a `getCurrentUser()`
 (because you do not differentiate), you can just ignore this one. Just overwrite
