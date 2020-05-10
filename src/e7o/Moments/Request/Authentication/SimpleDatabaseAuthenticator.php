@@ -67,7 +67,7 @@ class SimpleDatabaseAuthenticator extends SimpleConfigAuthenticator
 		}
 		
 		$pw = $this->moment->getService('database')->get(
-			'SELECT id, name, password FROM '
+			'SELECT * FROM '
 				. $this->dbTable
 				. ' WHERE name = :user ' . $this->dbAdditionalWhere,
 			[
