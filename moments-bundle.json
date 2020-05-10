@@ -1,0 +1,9 @@
+{
+	"scripts": [],
+	"assets": [
+		{
+			"from": "assets",
+			"to": "moments"
+		}
+	]
+}
