@@ -187,15 +187,14 @@ class MomentsController implements Controller
 	
 	protected function getTemplateVars()
 	{
+		$route = $this->route;
+		$route['requesturi'] = $this->request->getUrl();
 		return [
 			'assets' => $this->request->getBasePath() . '/assets/',
 			'top' => $this->request->getBasePath() . '/',
 			'meta' => implode(PHP_EOL, $this->getHeadHtml()),
 			'user' => $this->authenticator ? $this->authenticator->getUserForTemplate() : null,
-			'route' => [
-				'requesturi' => $this->request->getUrl(),
-				'id' => $this->route['id'],
-			],
+			'route' => $route,
 		];
 	}
 	
