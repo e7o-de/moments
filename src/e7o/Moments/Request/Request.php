@@ -19,7 +19,7 @@ class Request implements \ArrayAccess
 			parse_str(substr($_SERVER['REQUEST_URI'], $p + 1), $urlparams);
 			$this->params += $urlparams;
 		}
-		if ($_SERVER['CONTENT_TYPE'] == 'application/json' && strlen($this->body) > 0) {
+		if (($_SERVER['CONTENT_TYPE'] ?? null) == 'application/json' && strlen($this->body) > 0) {
 			$dec = json_decode($this->body, true);
 			if (strtolower($this->body) === 'null') {
 				// Just in case ;)
@@ -55,12 +55,33 @@ class Request implements \ArrayAccess
 	*/
 	private function buildPaths()
 	{
-		// 17 == len(/public/index.php)
-		$this->basePath = substr($_SERVER['DOCUMENT_URI'], 0, -17);
+		if (isset($_SERVER['DOCUMENT_URI'])) {
+			// e.g. nginx
+			// 17 == len(/public/index.php)
+			$this->basePath = substr($_SERVER['DOCUMENT_URI'], 0, -17);
+			$requestUri = $_SERVER['REQUEST_URI'];
+		} else if (isset($_SERVER['SCRIPT_URL']) && isset($_SERVER['DOCUMENT_ROOT'])) {
+			// e.g. Apache
+			$this->basePath = substr($_SERVER['SCRIPT_FILENAME'], 0, -17);
+			$this->basePath = substr($this->basePath, strlen($_SERVER['DOCUMENT_ROOT']));
+			$requestUri = $_SERVER['SCRIPT_URL'];
+		} else if (isset($_SERVER['PHP_SELF'])) {
+			// e.g. PHP dev server
+			$p = explode('public/index.php', $_SERVER['PHP_SELF'], 2);
+			$this->basePath = $p[0] . 'public/';
+			$requestUri = null;
+			$this->routingPath = $p[1];
+		} else {
+			// We have no chance in this case. This happens, if e.g. the fastcgi variables in nginx
+			// are not configured properly or so.
+			throw new \Exception('Unsupported server or missconfigured variables (requires DOCUMENT_URI and REQUEST_URI)');
+		}
 		if ($this->basePath[-1] == '/') {
 			$this->basePath = substr($this->basePath, 0, -1);
 		}
-		$this->routingPath = substr($_SERVER['REQUEST_URI'], strlen($this->basePath));
+		if ($requestUri !== null) {
+			$this->routingPath = substr($requestUri, strlen($this->basePath));
+		}
 		if (strlen($this->routingPath) == 0) {
 			$this->routingPath = '/';
 		}

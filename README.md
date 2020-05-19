@@ -51,6 +51,18 @@ seeing an error about minimum-stability:
 }
 ```
 
+## Setup PHP dev server
+
+Execute in your project directory:
+
+```
+php -S localhost:8000
+```
+
+Now it's ready to run on http://localhost:8000/public/. If you're developing a webservice
+and the client won't connect, check `nestatat` if it bound to IPv6 only, this seems to be
+an issue in some cases (like on MacOS).
+
 ## Setup in nginx
 
 This is the approach you can go:
@@ -66,6 +78,19 @@ location /your-project {
 
 This is an example configuration for dev purposes, for production you should use
 `location /`, of course.
+
+## Setup in Apache
+
+Enable `mod_rewrite` by `a2enmod rewrite`. Either put this into your `.htaccess` (remember that `AllowOverride None`
+is a no-go in this case) or into the configuration file:
+
+```
+RewriteEngine On
+RewriteRule ^/your-project/assets/(.*)$ /your-project/public/assets/$1 [L]
+RewriteRule ^/your-project/(.*)$ /your-project/public/index.php
+```
+
+Same as for nginx: Remove `your-project/` for production.
 
 # Functionality - some documentation
 
