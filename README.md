@@ -63,6 +63,9 @@ Now it's ready to run on http://localhost:8000/public/. If you're developing a w
 and the client won't connect, check `nestatat` if it bound to IPv6 only, this seems to be
 an issue in some cases (like on MacOS).
 
+If you really wanna abuse this server for production or debugging purposes in a team
+environment, check the env variable `PHP_CLI_SERVER_WORKERS`.
+
 ## Setup in nginx
 
 This is the approach you can go:
@@ -78,6 +81,19 @@ location /your-project {
 
 This is an example configuration for dev purposes, for production you should use
 `location /`, of course.
+
+If you're getting an error, check, if you have configured this:
+
+```
+fastcgi_param  REQUEST_URI        $request_uri;
+fastcgi_param  DOCUMENT_URI       $document_uri;
+```
+
+There are some more, but usually there's a predefined config you or your operating systems
+package manager is putting there.
+
+Btw, if this variables are available and filled, it might be, that other servers will work
+as well.
 
 ## Setup in Apache
 
