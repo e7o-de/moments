@@ -324,3 +324,14 @@ but it's not listed in the following parameter lists):
 
 If you specify your own events in your bundle or config, you can also call them
 just with `$moment->callEvents($name, ...$args)`.
+
+## Further functionality
+
+The following components have docblock comments explaining the functionality.
+At some point in time, when we're having a real documentation, it will be available
+there, for now please check the file directly:
+
+- \e7o\Moments\Output\Forms\Generator
+- \e7o\Moments\Database\Connection
+- \e7o\Moments\Output\Images\Thumbnailer
+- \e7o\Moments\Request\Routers\SimpleRouter
