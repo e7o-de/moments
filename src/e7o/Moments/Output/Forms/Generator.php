@@ -14,7 +14,7 @@ use \e7o\Moments\Request\Request;
 * [
 * 	{
 * 		"id": "<NAME>",
-* 		"type": "text|longtext|file|submit|bool|list",
+* 		"type": "text|longtext|file|submit|bool|list|group",
 * 		"label": "Some short description",
 * 		"default": "<DEFAULT>",
 * 		"options": [1, 2, 3] | {"a": "Apple", "b": "Banana"}
@@ -23,6 +23,9 @@ use \e7o\Moments\Request\Request;
 * 			"maxlength": 128, # for text inputs
 * 			"type": "image", # for file uploads
 * 		},
+* 		"sub": [
+* 			...
+* 		]
 *		"callback": "callback_name",
 * 		"html": {
 * 			"beforeFrame": "...",
@@ -60,9 +63,13 @@ use \e7o\Moments\Request\Request;
 * 	echo $f->build('fancy-form.json');
 * }
 * ```
+* 
+* This class is not thread-safe when building forms.
 */
 class Generator
 {
+	private $hasUploads;
+	
 	public function __construct($templateRenderer, $formsDirectory)
 	{
 		$this->template = $templateRenderer;
@@ -74,22 +81,19 @@ class Generator
 		$formId = is_string($form) ? $this->getTechId($form) : null;
 		$form = $this->readForm($form);
 		
-		$hasUploads = false;
+		$this->hasUploads = false;
 		$result = [];
 		
 		foreach ($form as $element) {
-			$element = $this->fillUp($element, $data);
-			if (
-				!empty($element['callback'])
-				&& !empty($options[$element['callback'] . '::creator'])
-				&& is_callable($options[$element['callback'] . '::creator'])
-			) {
-				$options[$element['callback'] . '::creator']($element, $data);
+			if ($element['type'] == 'group') {
+				$subs = [];
+				foreach ($element['sub'] as $sub) {
+					$subs[] = $this->buildElement($sub, $data);
+				}
+				$element['sub'] = $subs;
 			}
-			if ($element['type'] == 'file') {
-				$hasUploads = true;
-			}
-			$result[] = $this->template->render('forms/item.htm', $element);
+			$rendered = $this->buildElement($element, $data);
+			$result[] = $this->template->render('forms/item.htm', ['item' => $element]);
 		}
 		
 		$result = $this->template->render(
@@ -97,7 +101,7 @@ class Generator
 			[
 				'form-id' => $formId,
 				'method' => $options['method'] ?? 'POST', // Recommended
-				'enctype' => $hasUploads ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
+				'enctype' => $this->hasUploads ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
 				'action' => $options['action'] ?? null,
 				'content' => implode(PHP_EOL, $result),
 				'class' => $options['class'] ?? null,
@@ -105,6 +109,22 @@ class Generator
 		);
 		
 		return $result;
+	}
+	
+	private function buildElement(&$element, &$data)
+	{
+		$element = $this->fillUp($element, $data);
+		if (
+			!empty($element['callback'])
+			&& !empty($options[$element['callback'] . '::creator'])
+			&& is_callable($options[$element['callback'] . '::creator'])
+		) {
+			$options[$element['callback'] . '::creator']($element, $data);
+		}
+		if ($element['type'] == 'file') {
+			$this->hasUploads = true;
+		}
+		return $element;
 	}
 	
 	/**
@@ -123,59 +143,71 @@ class Generator
 	{
 		$form = $this->readForm($form);
 		$collected = [];
-		
-		foreach ($form as $element) {
-			$element = $this->fillUp($element);
-			$data = $request->getParameter($element['tech-id'], $element['default'] ?? null);
-			$validated = false;
-			if (
-				!empty($element['callback'])
-				&& !empty($options[$element['callback'] . '::validator'])
-				&& is_callable($options[$element['callback'] . '::validator'])
-			) {
-				$options[$element['callback'] . '::validator']($element, $data);
-				$validated = true;
+		foreach ($form as $elementOuter) {
+			if ($elementOuter['type'] == 'group') {
+				$elementInner = $elementOuter['sub'];
+			} else {
+				$elementInner = [$elementOuter];
 			}
-			switch ($element['type']) {
-				case 'file':
-					// ToDo: Other constraints (like file type)
-					break;
-				case 'bool':
-					$data = $data === '1';
-					break;
-				default:
-					if ($validated) {
+			foreach ($elementInner as $element) {
+				$element = $this->fillUp($element);
+				$data = $request->getParameter($element['tech-id'], $element['default'] ?? null);
+				$validated = false;
+				if (
+					!empty($element['callback'])
+					&& !empty($options[$element['callback'] . '::validator'])
+					&& is_callable($options[$element['callback'] . '::validator'])
+				) {
+					$options[$element['callback'] . '::validator']($element, $data);
+					$validated = true;
+				}
+				switch ($element['type']) {
+					case 'file':
+						// ToDo: Other constraints (like file type)
 						break;
-					}
-					// Handle regular, easy constraints
-					if (isset($element['constraints']) && is_array($element['constraints'])) {
-						$constraints = $element['constraints'];
-						if (
-							isset($constraints['maxlength']) && strlen($data) > $constraints['maxlength']
-							|| isset($constraints['pattern']) && preg_match('/^' . $constraints['pattern'] . '$/', $data) == 0
-							|| isset($constraints['required']) && $constraints['required'] && strlen($data) == 0
-							|| isset($constraints['max']) && $data > $constraints['max']
-							|| isset($constraints['min']) && $data < $constraints['min']
-						) {
-							throw new \Exception('Form constraint not fullfilled on element ' . $element['id']);
+					case 'bool':
+						$data = $data === '1';
+						break;
+					case 'submit':
+						$data = ($data === $element['id']);
+						if ($data) {
+							$collected['_submit'] = $element['id'];
 						}
-					}
-					if ($element['type'] == 'list') {
-						// Validate input against specified list values
-						if (!is_array($data)) {
-							$dataToCheck = [$data];
+						break;
+					default:
+						if ($validated) {
+							break;
 						}
-						foreach ($dataToCheck as $singleval) {
-							if (!isset($element['options'][$singleval])) {
-								throw new \Exception('Element ' . $element['id'] . ' received invalid list value ' . $singleval);
+						// Handle regular, easy constraints
+						if (isset($element['constraints']) && is_array($element['constraints'])) {
+							$constraints = $element['constraints'];
+							if (
+								isset($constraints['maxlength']) && strlen($data) > $constraints['maxlength']
+								|| isset($constraints['pattern']) && preg_match('/^' . $constraints['pattern'] . '$/', $data) == 0
+								|| isset($constraints['required']) && $constraints['required'] && strlen($data) == 0
+								|| isset($constraints['max']) && $data > $constraints['max']
+								|| isset($constraints['min']) && $data < $constraints['min']
+							) {
+								throw new \Exception('Form constraint not fullfilled on element ' . $element['id']);
 							}
 						}
-					}
-					if ($element['type'] == 'number' && !is_numeric($data)) {
-						throw new \Exception('Element ' . $element['id'] . ' is not numeric');
-					}
+						if ($element['type'] == 'list') {
+							// Validate input against specified list values
+							if (!is_array($data)) {
+								$dataToCheck = [$data];
+							}
+							foreach ($dataToCheck as $singleval) {
+								if (!isset($element['options'][$singleval])) {
+									throw new \Exception('Element ' . $element['id'] . ' received invalid list value ' . $singleval);
+								}
+							}
+						}
+						if ($element['type'] == 'number' && !is_numeric($data)) {
+							throw new \Exception('Element ' . $element['id'] . ' is not numeric');
+						}
+				}
+				$collected[$element['id']] = $data;
 			}
-			$collected[$element['id']] = $data;
 		}
 		
 		return $collected;

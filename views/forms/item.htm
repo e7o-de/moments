@@ -1,71 +1,80 @@
 {{ html.beforeFrame }}
-<div class="form_{{ type }}{% if class %} {{ class }}{% endif %}">
-{% switch type %}
-{% case "text" %}
-	<label for="{{ tech-id }}">{{ label }}</label>
-	{{ html.beforeInput }}
-	<input
-		type="text" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default|encode }}"
-		{% if suggestions %}list="{{ tech-id }}_list"{% endif %}
-		{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
-		{% if constraints.pattern %}pattern="{{ constraints.pattern }}"{% endif %}
-		{% if constraints.required %}required="required"{% endif %}
-	/>
-	{{ html.afterInput }}
-	{% if suggestions %}
-		<datalist id="{{ tech-id }}_list">
-		{% for v in suggestions %}
-			<option value="{{ v|encode }}"/>
-		{% endfor %}
-		</datalist>
-	{% endif %}
-{% case "longtext" %}
-	<label for="{{ tech-id }}">{{ label }}</label>
-	{{ html.beforeInput }}
-	<textarea
-		id="{{ tech-id }}" name="{{ tech-id }}"
-		{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
-	>{{ default|encode }}</textarea>
-	{{ html.afterInput }}
-{% case "number" %}
-	<label for="{{ tech-id }}">{{ label }}</label>
-	{{ html.beforeInput }}
-	<input
-		type="range" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default }}"
-		{% if constraints.max %}max="{{ constraints.max }}"{% endif %}
-		{% if constraints.min %}min="{{ constraints.min }}"{% endif %}
-		{% if constraints.step %}step="{{ constraints.step }}"{% endif %}
-		oninput="{{ tech-id }}_output.value = {{ tech-id }}.value"
-	/>
-	<output name="{{ tech-id }}_output" for="{{ tech-id }}">{{ default }}</output>
-	{{ html.afterInput }}
-{% case "bool" %}
-	{{ html.beforeInput }}
-	<input type="checkbox" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ 1 }}" {% if default %}checked="checked"{% endif %} />
-	<label for="{{ tech-id }}">{{ label }}</label>
-	{{ html.afterInput }}
-{% case "list" %}
-	<label for="{{ tech-id }}">{{ label }}</label>
-	{{ html.beforeInput }}
-	<select id="{{ tech-id }}" name="{{ tech-id }}{% if multiple %}[]{% endif %}" {% if multiple %} multiple="multiple"{% endif %}>
-		{% for k, v in options %}
-			<option value="{{ k|encode }}" {% if k in default %}selected="selected"{% endif %}>{{ v|encode }}</option>
-		{% endfor %}
-	</select>
-	{{ html.afterInput }}
-{% case "file" %}
-	<label for="{{ tech-id }}">{{ label }}</label>
-	{{ html.beforeInput }}
-	<input type="file" id="{{ tech-id }}" name="{{ tech-id }}"
-		{% if constraints.type %}accept="{{ constraints.type }}/*"{% endif %}
-	/>
-	{{ html.afterInput }}
-{% case "submit" %}
-	{{ html.beforeInput }}
-	<button type="submit">{{ label }}</button>
-	{{ html.afterInput }}
-{% case * %}
-	[ERROR: Unknown type <i>{{ type }}</i> in form config]
-{% endswitch %}
+{% macro renderItem(*) %}
+	{% switch type %}
+	{% case "text" %}
+		<label for="{{ tech-id }}">{{ label }}</label>
+		{{ html.beforeInput }}
+		<input
+			type="text" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default|encode }}"
+			{% if suggestions %}list="{{ tech-id }}_list"{% endif %}
+			{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
+			{% if constraints.pattern %}pattern="{{ constraints.pattern }}"{% endif %}
+			{% if constraints.required %}required="required"{% endif %}
+		/>
+		{{ html.afterInput }}
+		{% if suggestions %}
+			<datalist id="{{ tech-id }}_list">
+			{% for v in suggestions %}
+				<option value="{{ v|encode }}"/>
+			{% endfor %}
+			</datalist>
+		{% endif %}
+	{% case "longtext" %}
+		<label for="{{ tech-id }}">{{ label }}</label>
+		{{ html.beforeInput }}
+		<textarea
+			id="{{ tech-id }}" name="{{ tech-id }}"
+			{% if constraints.maxlength %}maxlength="{{ constraints.maxlength }}"{% endif %}
+		>{{ default|encode }}</textarea>
+		{{ html.afterInput }}
+	{% case "number" %}
+		<label for="{{ tech-id }}">{{ label }}</label>
+		{{ html.beforeInput }}
+		<input
+			type="range" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ default }}"
+			{% if constraints.max %}max="{{ constraints.max }}"{% endif %}
+			{% if constraints.min %}min="{{ constraints.min }}"{% endif %}
+			{% if constraints.step %}step="{{ constraints.step }}"{% endif %}
+			oninput="{{ tech-id }}_output.value = {{ tech-id }}.value"
+		/>
+		<output name="{{ tech-id }}_output" for="{{ tech-id }}">{{ default }}</output>
+		{{ html.afterInput }}
+	{% case "bool" %}
+		{{ html.beforeInput }}
+		<input type="checkbox" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ 1 }}" {% if default %}checked="checked"{% endif %} />
+		<label for="{{ tech-id }}">{{ label }}</label>
+		{{ html.afterInput }}
+	{% case "list" %}
+		<label for="{{ tech-id }}">{{ label }}</label>
+		{{ html.beforeInput }}
+		<select id="{{ tech-id }}" name="{{ tech-id }}{% if multiple %}[]{% endif %}" {% if multiple %} multiple="multiple"{% endif %}>
+			{% for k, v in options %}
+				<option value="{{ k|encode }}" {% if k in default %}selected="selected"{% endif %}>{{ v|encode }}</option>
+			{% endfor %}
+		</select>
+		{{ html.afterInput }}
+	{% case "file" %}
+		<label for="{{ tech-id }}">{{ label }}</label>
+		{{ html.beforeInput }}
+		<input type="file" id="{{ tech-id }}" name="{{ tech-id }}"
+			{% if constraints.type %}accept="{{ constraints.type }}/*"{% endif %}
+		/>
+		{{ html.afterInput }}
+	{% case "submit" %}
+		{{ html.beforeInput }}
+		<button type="submit" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ id|encode }}">{{ label }}</button>
+		{{ html.afterInput }}
+	{% case * %}
+		[ERROR: Unknown type <i>{{ type }}</i> in form config]
+	{% endswitch %}
+{% endmacro %}
+<div class="form_{{ item.type }}{% if item.class %} {{ item.class }}{% endif %}">
+{% if item.sub %}
+	{% for element in item.sub %}
+		{{ renderItem(element) }}
+	{% endfor %}
+{% else %}
+	{{ renderItem(item) }}
+{% endif %}
 </div>
 {{ html.afterFrame }}
