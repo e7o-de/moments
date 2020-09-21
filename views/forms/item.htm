@@ -62,8 +62,13 @@
 		{{ html.afterInput }}
 	{% case "submit" %}
 		{{ html.beforeInput }}
-		<button type="submit" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ id|encode }}">{{ label }}</button>
+		<button
+			type="submit" id="{{ tech-id }}" name="{{ tech-id }}" value="{{ id|encode }}"
+			{% if confirm %}onclick="return confirm('{{ confirm|encode }}');" {% endif %}
+		>{{ label }}</button>
 		{{ html.afterInput }}
+	{% case "group" %}
+		{# Nothing to render #}
 	{% case * %}
 		[ERROR: Unknown type <i>{{ type }}</i> in form config]
 	{% endswitch %}
