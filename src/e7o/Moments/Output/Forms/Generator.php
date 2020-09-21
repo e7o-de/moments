@@ -88,11 +88,11 @@ class Generator
 			if ($element['type'] == 'group') {
 				$subs = [];
 				foreach ($element['sub'] as $sub) {
-					$subs[] = $this->buildElement($sub, $data);
+					$subs[] = $this->buildElement($sub, $data, $options);
 				}
 				$element['sub'] = $subs;
 			}
-			$rendered = $this->buildElement($element, $data);
+			$rendered = $this->buildElement($element, $data, $options);
 			$result[] = $this->template->render('forms/item.htm', ['item' => $element]);
 		}
 		
@@ -111,7 +111,7 @@ class Generator
 		return $result;
 	}
 	
-	private function buildElement(&$element, &$data)
+	private function buildElement(&$element, &$data, &$options)
 	{
 		$element = $this->fillUp($element, $data);
 		if (
