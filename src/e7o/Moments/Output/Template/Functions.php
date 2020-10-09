@@ -14,5 +14,11 @@ class Functions
 				return $controller->buildRoute($routeId, $params);
 			}
 		);
+		$template->addFunction(
+			'request',
+			function ($var) use ($controller) {
+				return $controller->getRequest()->getParameter($var);
+			}
+		);
 	}
 }
