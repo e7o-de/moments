@@ -69,10 +69,8 @@ class Connection extends \PDO
 	*/
 	public function insert($table, $data)
 	{
-		$query = 'INSERT INTO ' . $table
-			. '(' . implode(', ', array_keys($data))
-			. ') VALUES (:' . implode(', :', array_keys($data)) . ')'
-		;
+		$query = $this->buildInsert($table, $data);
+		
 		$q = $this->prepare($query);
 		$r = $q->execute($data);
 		if ($r) {
@@ -82,19 +80,47 @@ class Connection extends \PDO
 		}
 	}
 	
+	private function buildInsert($table, $data)
+	{
+		return 'INSERT INTO ' . $table
+			. '(' . implode(', ', array_keys($data))
+			. ') VALUES (:' . implode(', :', array_keys($data)) . ')'
+		;
+	}
+	
 	/**
 	* Simple helper to update one or more rows in database, take care of a correct
 	* WHERE clause (don't use 1=1 or so).
 	*/
 	public function update($table, $data, $where, $params = [])
 	{
+		$fields = $this->buildUpdateSet($data);
+		$query = 'UPDATE ' . $table . ' SET ' . $fields . ' WHERE ' . $where;
+		$q = $this->prepare($query);
+		return $q->execute($data + $params);
+	}
+	
+	private function buildUpdateSet($data)
+	{
 		$fields = [];
 		foreach ($data as $field => $val) {
 			$fields[] = $field . ' = :' . $field;
 		}
-		$query = 'UPDATE ' . $table . ' SET ' . implode(', ', $fields) . ' WHERE ' . $where;
+		return implode(', ', $fields);
+	}
+	
+	/**
+	* Updates or inserts something based on the primary key. Primary key
+	* must be present in $data, otherwise it will just insert a new row.
+	*/
+	public function replace($table, array $data)
+	{
+		$query = $this->buildInsert($table, $data)
+			. ' ON DUPLICATE KEY UPDATE '
+			. $this->buildUpdateSet($data)
+		;
 		$q = $this->prepare($query);
-		return $q->execute($data + $params);
+		return $q->execute($data);
 	}
 	
 	/**
