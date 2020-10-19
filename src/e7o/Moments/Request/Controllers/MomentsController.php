@@ -6,6 +6,7 @@ use \e7o\Moments\Moment;
 use \e7o\Moments\Request\Request;
 use \e7o\Moments\Response\Response;
 use \e7o\Moments\Response\JsonResponse;
+use \e7o\Moments\Response\RedirectResponse;
 use \e7o\Moments\Response\NullResponse;
 use \e7o\Moments\Request\Routers\Router;
 use \e7o\Moments\Helper\Authenticator;
@@ -50,7 +51,12 @@ class MomentsController implements Controller
 			if ($this->authenticator !== null) {
 				$allowed = $this->authenticator->isAllowed($request, $route);
 				if ($allowed !== true) {
-					$this->route = $this->getRouter()->getRoute($this->authenticator->getAuthenticationRoute());
+					$url = $this->buildRoute(
+						$this->authenticator->getAuthenticationRoute(),
+						[],
+						true
+					) . '?rd=' . urlencode($request->getRoutingPath());
+					return new RedirectResponse($url);
 				}
 			}
 			
