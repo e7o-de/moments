@@ -26,7 +26,10 @@ use \e7o\Moments\Request\Request;
 * 		"sub": [
 * 			...
 * 		]
-*		"callback": "callback_name",
+* 		"callback": {
+* 			"creation": "your_callback_name",
+* 			"validation": "your_callback_name"
+* 		},
 * 		"html": {
 * 			"beforeFrame": "...",
 * 			"beforeInput": "...",
@@ -38,12 +41,12 @@ use \e7o\Moments\Request\Request;
 * ]
 * ```
 * 
-* The `callback_name` function must be passed in the options of `build` and `evaluate`.
-* You need a callback in the form of `function (&$element) { ... }` or
+* The `your_callback_name` function must be passed in the options of `build`
+* and `evaluate`. You need a callback in the form of `function (&$element) { ... }` or
 * `function ($element, &$data) { ... }`, you're allowed to modify the values in creation.
-* - `callback_name::creator` will be called on element creation, so here's the place to fill in e.g.
+* - `creation` will be called on element creation, so here's the place to fill in e.g.
 *   the list for a select box from database, the time or anything else you can imagine.
-* - `callback_name::validator` is for validation. Providing a validator function will
+* - `validation` is for validation. Providing a validator function will
 *   disable the internal validation process. This is highly recommended, as it has
 *   no idea about the allowed data in a list. If validation fails on your side, just
 *   throw an exception like the generator does itself as well. Btw, you could modify
@@ -116,10 +119,10 @@ class Generator
 		$element = $this->fillUp($element, $data);
 		if (
 			!empty($element['callback'])
-			&& !empty($options[$element['callback'] . '::creator'])
-			&& is_callable($options[$element['callback'] . '::creator'])
+			&& !empty($options[$element['callback']['creation']])
+			&& is_callable($options[$element['callback']['creation']])
 		) {
-			$options[$element['callback'] . '::creator']($element, $data);
+			$options[$element['callback']['creation']]($element, $data);
 		}
 		if ($element['type'] == 'file') {
 			$this->hasUploads = true;
@@ -155,10 +158,10 @@ class Generator
 				$validated = false;
 				if (
 					!empty($element['callback'])
-					&& !empty($options[$element['callback'] . '::validator'])
-					&& is_callable($options[$element['callback'] . '::validator'])
+					&& !empty($options[$element['callback']['validation']])
+					&& is_callable($options[$element['callback']['validation']])
 				) {
-					$options[$element['callback'] . '::validator']($element, $data);
+					$options[$element['callback']['validation']]($element, $data);
 					$validated = true;
 				}
 				switch ($element['type']) {
