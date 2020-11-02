@@ -76,7 +76,7 @@ class Request implements \ArrayAccess
 			// are not configured properly or so.
 			throw new \Exception('Unsupported server or missconfigured variables (requires DOCUMENT_URI and REQUEST_URI)');
 		}
-		if ($this->basePath[-1] == '/') {
+		if (substr($this->basePath, -1, 1) == '/') {
 			$this->basePath = substr($this->basePath, 0, -1);
 		}
 		if ($requestUri !== null) {
