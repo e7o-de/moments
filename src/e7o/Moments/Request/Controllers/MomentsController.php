@@ -36,7 +36,9 @@ class MomentsController implements Controller
 			$this->route = $route;
 			
 			$this->authenticator = $this->get('authenticator');
-			$this->authenticator->checkLogin($request, $route);
+			if ($this->authenticator !== null) {
+				$this->authenticator->checkLogin($request, $route);
+			}
 			
 			$allowed = $this->isAllowed();
 			if ($allowed instanceof Response) {
