@@ -53,9 +53,9 @@ class SimpleRouter implements Router
 						. preg_replace_callback(
 							'#\{(' . static::MATCH_PATTERN . ')\}#',
 							function ($match) use (&$params) {
-								if ($p = strpos($match[1], ':') !== false) {
-									$pattern = substr($match[1], $p + 2);
-									$paramName = substr($match[1], 0, $p + 1);
+								if (($p = strpos($match[1], ':')) !== false) {
+									$pattern = substr($match[1], $p + 1);
+									$paramName = substr($match[1], 0, $p);
 								} else {
 									$pattern = static::MATCH_PATTERN;
 									$paramName = $match[1];
