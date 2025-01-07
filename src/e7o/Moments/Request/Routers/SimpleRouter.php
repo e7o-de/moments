@@ -65,7 +65,7 @@ class SimpleRouter implements Router
 							},
 							$route['route']
 						)
-						. '/?$#';
+						. '$#';
 					$route['parameters'] = $params;
 				} else {
 					$route['parameters'] = [];
@@ -151,10 +151,6 @@ class SimpleRouter implements Router
 		
 		if (strlen($path) == 0) {
 			return '/';
-		}
-		
-		if (substr($path, -1, 1) == '/' && strlen($path) > 1) {
-			$path = substr($path, 0, -1);
 		}
 		
 		return $path;
