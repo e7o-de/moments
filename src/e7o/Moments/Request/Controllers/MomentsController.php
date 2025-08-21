@@ -249,6 +249,11 @@ class MomentsController implements Controller
 		return $this->request ?? $this->get('request');
 	}
 	
+	public function in($name, $default = null)
+	{
+		return $this->getRequest()->getParameter($name, $default);
+	}
+	
 	public function getRouter(): Router
 	{
 		return $this->get('router');
