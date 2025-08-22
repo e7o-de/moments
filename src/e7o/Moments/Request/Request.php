@@ -132,17 +132,17 @@ class Request implements \ArrayAccess
 		return isset($this->params[$parameter]);
 	}
 	
-	public function offsetGet($parameter)
+	public function offsetGet($parameter): mixed
 	{
 		return $this->getParameter($parameter);
 	}
 	
-	public function offsetSet($parameter, $value)
+	public function offsetSet($parameter, $value): void
 	{
 		$this->params[$parameter] = $value;
 	}
 	
-	public function offsetUnset($parameter)
+	public function offsetUnset($parameter): void
 	{
 		unset($this->params[$parameter]);
 	}

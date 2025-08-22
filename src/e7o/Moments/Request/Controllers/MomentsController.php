@@ -9,10 +9,7 @@ use \e7o\Moments\Response\JsonResponse;
 use \e7o\Moments\Response\RedirectResponse;
 use \e7o\Moments\Response\NullResponse;
 use \e7o\Moments\Request\Routers\Router;
-use \e7o\Moments\Helper\Authenticator;
-
-use \e7o\Morosity\Executor\Handler;
-use \e7o\Morosity\Executor\VariableContext;
+use \e7o\Moments\Request\Authentication\Authenticator;
 
 class MomentsController implements Controller
 {
@@ -208,12 +205,12 @@ class MomentsController implements Controller
 	
 	public function setTitle($title)
 	{
-		$this->metaCollected['title'] = '<title>' . htmlentities($title, null, 'UTF-8') . '</title>';
+		$this->metaCollected['title'] = '<title>' . htmlentities($title, 0, 'UTF-8') . '</title>';
 	}
 	
 	public function addMetaTag($name, $value)
 	{
-		$this->metaCollected[] = '<meta name="' . $name . '" content="' . htmlentities($value, null, 'UTF-8') . '" />';
+		$this->metaCollected[] = '<meta name="' . $name . '" content="' . htmlentities($value, 0, 'UTF-8') . '" />';
 	}
 	
 	public function addScript($file)
