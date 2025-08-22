@@ -51,7 +51,9 @@ seeing an error about minimum-stability:
 }
 ```
 
-## Setup PHP dev server
+## Server setup
+
+### PHP dev server
 
 Execute in your project directory:
 
@@ -66,7 +68,7 @@ an issue in some cases (like on MacOS).
 If you really wanna abuse this server for production or debugging purposes in a team
 environment, check the env variable `PHP_CLI_SERVER_WORKERS`.
 
-## Setup in nginx
+### nginx
 
 This is the approach you can go:
 
@@ -95,7 +97,7 @@ package manager is putting there.
 Btw, if this variables are available and filled, it might be, that other servers will work
 as well.
 
-## Setup in Apache
+### Apache
 
 Enable `mod_rewrite` by `a2enmod rewrite`. Either put this into your `.htaccess` (remember that `AllowOverride None`
 is a no-go in this case) or into the configuration file:
@@ -107,6 +109,10 @@ RewriteRule ^/your-project/(.*)$ /your-project/public/index.php
 ```
 
 Same as for nginx: Remove `your-project/` for production.
+
+### Configuration in Moments
+
+Beware that the project directory like `/var/www/htdocs/your-project` should be the same as the actual path you're placing in rewrite rules and the user is seeing. If it isn't, you have to specify in config the value like this: `"baseurl": "/fancy-project/"`.
 
 # Functionality - some documentation
 
@@ -245,6 +251,7 @@ Your bundle has to have a `moments-bundle.json` with some valid json in it. In t
 this file could be empty, besides a `{}`.
 
 You can specify some stuff, like
+
 - in `scripts` a list of plain php scripts which should do some tasks before integration.
   Here you can download the most recent version of a fancy JS library or so. It should be
   possible to write to the directories, as the script is run by composer.

@@ -49,7 +49,7 @@ class Moment
 	{
 		try {
 			if ($request === null) {
-				$request = new \e7o\Moments\Request\Request();
+				$request = new \e7o\Moments\Request\Request($this->config->get('baseurl'));
 			}
 			
 			$this->setService('request', $request);

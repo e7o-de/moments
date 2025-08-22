@@ -8,9 +8,11 @@ class Request implements \ArrayAccess
 	protected $routingPath;
 	protected $basePath;
 	protected $params;
+	protected $configuredBaseUrl;
 	
 	public function __construct()
 	{
+		$this->configuredBaseUrl = $configuredBaseUrl;
 		$this->body = file_get_contents('php://input');
 		$this->buildPaths();
 		$this->params = $_REQUEST + $_FILES + $_COOKIE;
@@ -71,10 +73,14 @@ class Request implements \ArrayAccess
 			$this->basePath = $p[0] . 'public/';
 			$requestUri = null;
 			$this->routingPath = $p[1];
-		} else {
+		} else if (empty($this->configuredBaseUrl)) {
 			// We have no chance in this case. This happens, if e.g. the fastcgi variables in nginx
 			// are not configured properly or so.
 			throw new \Exception('Unsupported server or missconfigured variables (requires DOCUMENT_URI and REQUEST_URI)');
+		}
+		// Just overwriting basePath if configured
+		if (!empty($this->configuredBaseUrl)) {
+			$this->basePath = $this->configuredBaseUrl;
 		}
 		if (substr($this->basePath, -1, 1) == '/') {
 			$this->basePath = substr($this->basePath, 0, -1);
