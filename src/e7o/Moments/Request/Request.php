@@ -10,7 +10,7 @@ class Request implements \ArrayAccess
 	protected $params;
 	protected $configuredBaseUrl;
 	
-	public function __construct()
+	public function __construct(?string $configuredBaseUrl = null)
 	{
 		$this->configuredBaseUrl = $configuredBaseUrl;
 		$this->body = file_get_contents('php://input');
@@ -21,7 +21,8 @@ class Request implements \ArrayAccess
 			parse_str(substr($_SERVER['REQUEST_URI'], $p + 1), $urlparams);
 			$this->params += $urlparams;
 		}
-		if (($_SERVER['CONTENT_TYPE'] ?? null) == 'application/json' && strlen($this->body) > 0) {
+		$ct = explode(';', $_SERVER['CONTENT_TYPE'] ?? ';');
+		if (trim($ct[0]) == 'application/json' && strlen($this->body) > 0) {
 			$dec = json_decode($this->body, true);
 			if (strtolower($this->body) === 'null') {
 				// Just in case ;)

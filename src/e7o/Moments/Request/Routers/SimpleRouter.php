@@ -110,11 +110,11 @@ class SimpleRouter implements Router
 	}
 	
 	// todo: provide an easier way to call without request for momentcontroller
-	public function buildUrl(Request $request, string $route, array $params = [], bool $absolute = false): string
+	public function buildUrl(Request $request, string $routeId, array $params = [], bool $absolute = false): string
 	{
-		$route = $this->table[$route] ?? null;
+		$route = $this->table[$routeId] ?? null;
 		if (empty($route)) {
-			throw new \Exception('Cannot build route: ' . $route);
+			throw new \Exception('Cannot build route: ' . $routeId);
 		}
 		$url = $request->getBasePath() . $route['route'];
 		if (is_numeric(key($params))) {

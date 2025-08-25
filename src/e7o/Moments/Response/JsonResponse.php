@@ -6,7 +6,7 @@ class JsonResponse extends Response
 {
 	protected $content;
 	
-	public function __construct(array $content)
+	public function __construct(?array $content)
 	{
 		$this->content = $content;
 	}
