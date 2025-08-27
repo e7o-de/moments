@@ -5,6 +5,7 @@ namespace e7o\Moments\Request;
 class Request implements \ArrayAccess
 {
 	protected $body;
+	protected $bodyDecoded;
 	protected $routingPath;
 	protected $basePath;
 	protected $params;
@@ -14,6 +15,7 @@ class Request implements \ArrayAccess
 	{
 		$this->configuredBaseUrl = $configuredBaseUrl;
 		$this->body = file_get_contents('php://input');
+		$this->bodyDecoded = $this->body;
 		$this->buildPaths();
 		$this->params = $_REQUEST + $_FILES + $_COOKIE;
 		if (($p = strpos($_SERVER['REQUEST_URI'], '?')) !== false) {
@@ -22,12 +24,12 @@ class Request implements \ArrayAccess
 			$this->params += $urlparams;
 		}
 		$ct = explode(';', $_SERVER['CONTENT_TYPE'] ?? ';');
-		if (trim($ct[0]) == 'application/json' && strlen($this->body) > 0) {
-			$dec = json_decode($this->body, true);
+		if ($ct[0] == 'application/json' && strlen($this->body) > 0) {
+			$this->bodyDecoded = json_decode($this->body, true);
 			if (strtolower($this->body) === 'null') {
 				// Just in case ;)
-			} else if (is_array($dec)) {
-				$this->params += $dec;
+			} else if (is_array($this->bodyDecoded)) {
+				$this->params += $this->bodyDecoded;
 			} else {
 				throw new \Exception('This is a 400 Bad Request - JSON error: ' . \json_last_error_msg());
 			}
@@ -113,9 +115,9 @@ class Request implements \ArrayAccess
 		return ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http') . '://';
 	}
 	
-	public function getBody()
+	public function getBody($raw = false)
 	{
-		return $this->body;
+		return $raw ? $this->body : $this->bodyDecoded;
 	}
 	
 	public function getParameters(): array
