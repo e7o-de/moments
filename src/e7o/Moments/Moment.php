@@ -67,11 +67,15 @@ class Moment
 		return $this->config->get('environment', 'prod');
 	}
 	
-	public function getService(string $serviceName)
+	public function getService(string $serviceName, array $params = [])
 	{
 		// Cached?
-		if (!empty($this->serviceCache[$serviceName])) {
-			return $this->serviceCache[$serviceName];
+		$cacheName = $serviceName;
+		if (!empty($params)) {
+			$cacheName .= '__' . serialize($params);
+		}
+		if (!empty($this->serviceCache[$cacheName])) {
+			return $this->serviceCache[$cacheName];
 		}
 		
 		// Normal instantiation
@@ -80,7 +84,7 @@ class Moment
 			if (is_object($service)) {
 				return $service;
 			}
-			$args = $this->assembleArgs($service['args'] ?? []);
+			$args = $this->assembleArgs($service['args'] ?? [], $params);
 			if (isset($service['factory'])) {
 				$instance = call_user_func_array($service['factory'] . '::get', $args);
 			} else if (isset($service['class'])) {
@@ -135,7 +139,7 @@ class Moment
 		return $args;
 	}
 	
-	private function assembleArgs(array $args)
+	private function assembleArgs(array $args, array $params = [])
 	{
 		$collectedArgs = [];
 		foreach ($args as $key => $arg) {
@@ -143,29 +147,35 @@ class Moment
 				$collectedArgs[$key] = $this->assembleArgs($arg);
 			} else if ($arg[0] == '%') { // TODO: Escaping
 				$arg = $this->config->get(substr($arg, 1));
-				$this->preprocessArgs($arg);
+				$this->preprocessArgs($arg, $params);
 				$collectedArgs[$key] = $arg;
 			} else if ($arg[0] == '@') {
 				// ToDo: Check for recursions etc.
 				$collectedArgs[$key] = $this->getService(substr($arg, 1));
 			} else {
-				$this->preprocessArgs($arg);
+				$this->preprocessArgs($arg, $params);
 				$collectedArgs[$key] = $arg;
 			}
 		}
 		return $collectedArgs;
 	}
 	
-	private function preprocessArgs(&$arg)
+	private function preprocessArgs(&$arg, &$params)
 	{
 		if (is_array($arg)) {
 			foreach ($arg as &$v) {
-				$this->preprocessArgs($v);
+				$this->preprocessArgs($v, $params);
 			}
 		} else if (is_string($arg)) {
+			foreach ($params as $param => $value) {
+				$arg = str_replace('${' . $param . '}', $value, $arg);
+			}
 			// Very ugly solution, but works for only few vars ;)
 			$arg = str_replace('${root}', $this->baseDir, $arg);
 			$arg = str_replace('${moments}', $this->momentsBaseDir, $arg);
+			if (($c = strpos($arg, '${')) !== false) {
+				throw new \Exception('Missing parameter in injector args (starting at #' . $c . ')');
+			}
 		}
 	}
 	

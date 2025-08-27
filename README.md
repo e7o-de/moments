@@ -155,6 +155,30 @@ it's writeable. However, it might be, that you have to be root for the chown ope
 See docblock on `\e7o\Moments\Request\Routers\SimpleRouter` and the examples in
 `config/default.json`.
 
+## Service configuration
+
+There's a dependency injector system in place, you can use via the config file. Just get inspired by this examples:
+
+```json
+"services": {
+	"logger": {
+		"class": "\\fancy\\project\\Logger",
+		"args": ["${root}/data/logs/${project}/data", "%level"]
+	},
+	"orm": {
+		"class": "\\fancy\\project\\ORM",
+		"args": ["@database"]
+	},
+	"factory": {
+		"class": "\\fancy\\project\\Factory",
+		"args": ["@database"],
+		"factory": 1
+	}
+}
+```
+
+The syntax `${name}` is used for variable replacements. The values `root` for the base directory and `moments` for internal use are predefined, custom parameters you can pass when creating the instance with `$moment->getService('logger', ['project' => 'subprojectname');`. The syntax `@id` references another service. With `%option` you can reference a config option. If you specify `factory`, the container calls `::get` to get an instance of the class, instead of using `new`.
+
 ## Template
 
 Moments is using Morosity.
