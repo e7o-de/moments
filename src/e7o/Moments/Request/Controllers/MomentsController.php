@@ -13,6 +13,9 @@ use \e7o\Moments\Request\Authentication\Authenticator;
 
 class MomentsController implements Controller
 {
+	public const LOCATION_PROJECT = 0;
+	public const LOCATION_MOMENTS = 5;
+	
 	private $request;
 	private $moment;
 	private $template = null;
@@ -106,6 +109,7 @@ class MomentsController implements Controller
 			if ($returned instanceof Response) {
 				// Skip, we have a Response object already
 			} else if (!empty($route['template'])) {
+				$this->addScript('moments.js', true);
 				// todo: make real object with url builder, lazy evaluation etc.
 				$returned['$'] = $this->getTemplateVars();
 				$html = $this->template->render($route['template'], $returned);
@@ -155,6 +159,19 @@ class MomentsController implements Controller
 			}
 		}
 		return new Response($t);
+	}
+	
+	public function rpcAction($route): Response
+	{
+		if ($route[0] != '/') {
+			$route = '/' . $route;
+		}
+		
+		$request = clone $this->request;
+		$request->setRoutingPath($route);
+		$this->moment->takePlace($request);
+		
+		return new NullResponse;
 	}
 	
 	public function isAllowed()
@@ -213,14 +230,25 @@ class MomentsController implements Controller
 		$this->metaCollected[] = '<meta name="' . $name . '" content="' . htmlentities($value, 0, 'UTF-8') . '" />';
 	}
 	
-	public function addScript($file)
+	public function addScript($file, $src = self::LOCATION_PROJECT)
 	{
-		$this->metaCollected[md5($file)] = '<script src="' . $this->request->getBasePath() . '/assets/' . $file . '" type="text/javascript"></script>';
+		$this->metaCollected[md5($file)] = '<script src="' . $this->getLocationHref($src) . $file . '" type="text/javascript"></script>';
 	}
 	
-	public function addStylesheet($file)
+	public function addStylesheet($file, $src = self::LOCATION_PROJECT)
 	{
-		$this->metaCollected[md5($file)] = '<link rel="stylesheet" type="text/css" href="' . $this->request->getBasePath() . '/assets/' . $file . '" />';
+		$this->metaCollected[md5($file)] = '<link rel="stylesheet" type="text/css" href="' . $this->getLocationHref($src) . $file . '" />';
+	}
+	
+	private function getLocationHref($for)
+	{
+		switch ($for) {
+			case self::LOCATION_MOMENTS:
+				return $this->request->getBasePath() . '/assets/moments/';
+			case self::LOCATION_PROJECT:
+			default:
+				return $this->request->getBasePath() . '/assets/';
+		}
 	}
 	
 	private function getHeadHtml()

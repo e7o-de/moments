@@ -29,10 +29,18 @@ use \e7o\Moments\Response\Response;
  * It's possible to pass a regex for the parameter:
  * 
  * 'route': '/article/{id:[1-9][0-9]*}'
+ * 
+ * To catch everything (like a print version of the article under /print/article/123), just add a catch-all:
+ * 
+ * 'route': '/print/{alltothisparameter}',
+ * 'catchall': 'alltothisparameter'
+ * 
+ * You could do this on root as well.
  */
 class SimpleRouter implements Router
 {
 	const MATCH_PATTERN = '[^/?]+';
+	const MATCH_PATTERN_ALL = '[^?]*';
 	private $table;
 	
 	public function __construct(array &$routingTable)
@@ -49,16 +57,20 @@ class SimpleRouter implements Router
 				if (strpos($route['route'], '{') !== false) {
 					$params = [];
 					$route['_route_match_regex'] =
-						'#'
+						'#^'
 						. preg_replace_callback(
 							'#\{(' . static::MATCH_PATTERN . ')\}#',
-							function ($match) use (&$params) {
+							function ($match) use (&$params, &$route) {
 								if (($p = strpos($match[1], ':')) !== false) {
 									$pattern = substr($match[1], $p + 1);
 									$paramName = substr($match[1], 0, $p);
 								} else {
-									$pattern = static::MATCH_PATTERN;
 									$paramName = $match[1];
+									if ($route['catchall'] && $paramName == $route['catchall']) {
+										$pattern = static::MATCH_PATTERN_ALL;
+									} else {
+										$pattern = static::MATCH_PATTERN;
+									}
 								}
 								$params[$paramName] = 'null';
 								return '(?<' . $paramName . '>' . $pattern . ')';
@@ -109,14 +121,21 @@ class SimpleRouter implements Router
 		return $this->table[$routeId] ?? null;
 	}
 	
-	// todo: provide an easier way to call without request for momentcontroller
-	public function buildUrl(Request $request, string $routeId, array $params = [], bool $absolute = false): string
+	public function buildUrl(Request $request, string $route, array $params = [], bool $absolute = false): string
 	{
-		$route = $this->table[$routeId] ?? null;
+		if (substr($route, 0, 4) == 'rpc:') {
+			$route = substr($route, 4);
+			$rpc = true;
+		} else {
+			$rpc = false;
+		}
+		
+		$routeId = $route;
+		$route = $this->table[$route] ?? null;
 		if (empty($route)) {
 			throw new \Exception('Cannot build route: ' . $routeId);
 		}
-		$url = $request->getBasePath() . $route['route'];
+		$url = $route['route'];
 		if (is_numeric(key($params))) {
 			// Just replace by given order
 			foreach ($params as $value) {
@@ -133,9 +152,17 @@ class SimpleRouter implements Router
 		if (!empty($params)) {
 			$url .= '?' . http_build_query($params);
 		}
+		
+		if ($rpc) {
+			$url = str_replace('{route}', $url, $this->table['moments-rpc']['route'] ?? '(err)');
+		}
+		
+		$url = $request->getBasePath() . $url;
+		
 		if ($absolute) {
 			$url = $request->getProtocolPrefix() . $request->getHost() . $url;
 		}
+		
 		return $url;
 	}
 	
@@ -167,7 +194,10 @@ class SimpleRouter implements Router
 				}
 				
 				return $route;
-			} else if ($route['route'] === $path) {
+			} else if (
+				$route['route'] === $path
+				|| $route['catchall'] && $route['route'] === substr($path, 0, strlen($route['route']))
+			) {
 				return $route;
 			}
 		}

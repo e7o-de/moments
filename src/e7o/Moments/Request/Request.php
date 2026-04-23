@@ -36,6 +36,11 @@ class Request implements \ArrayAccess
 		}
 	}
 	
+	public function setRoutingPath(string $newUrl)
+	{
+		$this->routingPath = $newUrl;
+	}
+	
 	public function getUrl(): string
 	{
 		return $_SERVER['REQUEST_URI'];
