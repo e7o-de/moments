@@ -66,7 +66,7 @@ class SimpleRouter implements Router
 									$paramName = substr($match[1], 0, $p);
 								} else {
 									$paramName = $match[1];
-									if ($route['catchall'] && $paramName == $route['catchall']) {
+									if (($route['catchall'] ?? false) && $paramName == $route['catchall']) {
 										$pattern = static::MATCH_PATTERN_ALL;
 									} else {
 										$pattern = static::MATCH_PATTERN;
@@ -196,7 +196,7 @@ class SimpleRouter implements Router
 				return $route;
 			} else if (
 				$route['route'] === $path
-				|| $route['catchall'] && $route['route'] === substr($path, 0, strlen($route['route']))
+				|| ($route['catchall'] ?? false) && $route['route'] === substr($path, 0, strlen($route['route']))
 			) {
 				return $route;
 			}

@@ -54,7 +54,7 @@ class Thumbnailer
 	* Specifies the size; at least one parameter must be a meaningful
 	* number.
 	*/
-	public function setDimensions(int $w = null, int $h = null)
+	public function setDimensions(?int $w = null, ?int $h = null)
 	{
 		$this->width = $w;
 		$this->height = $h;
@@ -81,7 +81,7 @@ class Thumbnailer
 	
 	public function getResponse()
 	{
-		if (file_exists($this->cache)) {
+		if (!empty($this->cache) && file_exists($this->cache)) {
 			return new FileResponse($this->cache, 'image/png');
 		}
 		
