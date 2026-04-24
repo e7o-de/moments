@@ -167,6 +167,7 @@ class MomentsController implements Controller
 			$route = '/' . $route;
 		}
 		
+		$this->request->setRequestType(Request::RPC_REQUEST);
 		$request = clone $this->request;
 		$request->setRoutingPath($route);
 		$this->moment->takePlace($request);

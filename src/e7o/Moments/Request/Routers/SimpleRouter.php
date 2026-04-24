@@ -154,7 +154,7 @@ class SimpleRouter implements Router
 		}
 		
 		if ($rpc) {
-			$url = str_replace('{route}', $url, $this->table['moments-rpc']['route'] ?? '(err)');
+			$url = str_replace('{route}', substr($url, 1), $this->table['moments-rpc']['route'] ?? '(err)');
 		}
 		
 		$url = $request->getBasePath() . $url;

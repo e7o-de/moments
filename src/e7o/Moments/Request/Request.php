@@ -4,12 +4,16 @@ namespace e7o\Moments\Request;
 
 class Request implements \ArrayAccess
 {
+	public const DEFAULT_REQUEST = 0;
+	public const RPC_REQUEST = 1;
+	
 	protected $body;
 	protected $bodyDecoded;
 	protected $routingPath;
 	protected $basePath;
 	protected $params;
 	protected $configuredBaseUrl;
+	protected $requestType = self::DEFAULT_REQUEST;
 	
 	public function __construct(?string $configuredBaseUrl = null)
 	{
@@ -54,6 +58,16 @@ class Request implements \ArrayAccess
 	public function getBasePath(): string
 	{
 		return $this->basePath;
+	}
+	
+	public function getRequestType()
+	{
+		return $this->requestType;
+	}
+	
+	public function setRequestType($requestType)
+	{
+		$this->requestType = $requestType;
 	}
 	
 	/*
