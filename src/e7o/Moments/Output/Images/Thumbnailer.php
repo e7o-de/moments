@@ -85,6 +85,36 @@ class Thumbnailer
 			return new FileResponse($this->cache, 'image/png');
 		}
 		
+		$iDst = $this->generateThumbnail();
+		
+		$cache = $this->cache;
+		return new FileResponse(
+			function () use ($iDst, $cache) {
+				imagepng($iDst);
+				if (!empty($cache)) {
+					imagepng($iDst, $cache);
+				}
+			},
+			'image/png'
+		);
+	}
+	
+	public function writeFile(string $filename, string $format = 'jpg', int $qualityOrCompression = -1)
+	{
+		$iDst = $this->generateThumbnail();
+		switch ($format) {
+			case 'png':
+				imagepng($iDst, $filename, $qualityOrCompression);
+				break;
+			case 'jpg':
+			default:
+				imagejpeg($iDst, $filename, $qualityOrCompression);
+				break;
+		}
+	}
+	
+	private function generateThumbnail()
+	{
 		$needTransparency = false;
 		$info = getimagesize($this->filename);
 		switch ($info['mime']) {
@@ -133,16 +163,7 @@ class Thumbnailer
 		$y = ($frameHeight - $height) >> 1;
 		imagecopyresampled($iDst, $iSrc, $x, $y, 0, 0, $width, $height, $info[0], $info[1]);
 		
-		$cache = $this->cache;
-		return new FileResponse(
-			function () use ($iDst, $cache) {
-				imagepng($iDst);
-				if (!empty($cache)) {
-					imagepng($iDst, $cache);
-				}
-				imagedestroy($iDst);
-			},
-			'image/png'
-		);
+		return $iDst;
 	}
 }
+
