@@ -119,15 +119,19 @@ class Thumbnailer
 		$info = getimagesize($this->filename);
 		switch ($info['mime']) {
 			case 'image/jpeg':
-				$iSrc = imagecreatefromjpeg($this->filename);
+				$iSrc = @imagecreatefromjpeg($this->filename);
 				break;
 			case 'image/png':
-				$iSrc = imagecreatefrompng($this->filename);
+				$iSrc = @imagecreatefrompng($this->filename);
 				$needTransparency = true;
 				break;
 			case 'image/gif':
-				$iSrc = imagecreatefromgif($this->filename);
+				$iSrc = @imagecreatefromgif($this->filename);
 				break;
+		}
+		
+		if ($iSrc === false) {
+			throw new \Exception('Cannot read image file');
 		}
 		
 		$width = $this->width;
