@@ -170,7 +170,12 @@ class MomentsController implements Controller
 		$this->request->setRequestType(Request::RPC_REQUEST);
 		$request = clone $this->request;
 		$request->setRoutingPath($route);
-		$this->moment->takePlace($request);
+		
+		try {
+			$this->moment->takePlace($request);
+		} catch (\Exception $e) {
+			return new JsonResponse(['_rpc_error' => $e->getMessage()]);
+		}
 		
 		return new NullResponse;
 	}

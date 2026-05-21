@@ -39,15 +39,31 @@
 		
 		ajax(url, callback, onerror = null, post = null)
 		{
+			var dataKnownUntil = -1;
 			var r = new XMLHttpRequest();
 			var processedUntil = 0;
+			var processCallback = (parsed) => {
+				if (typeof parsed._rpc_error == 'string' && parsed._rpc_error.length > 0) {
+					if (onerror) {
+						onerror(null, r._rpc_error);
+					}
+				} else {
+					callback(parsed);
+				}
+			};
 			
 			r.addEventListener(
 				'readystatechange',
 				e => {
 					if (r.readyState == XMLHttpRequest.LOADING || r.readyState == XMLHttpRequest.DONE) {
+						var n = 0;
 						var cur = r.responseText.substring(processedUntil);
 						var parsed;
+						
+						if (cur.length == 0 || dataKnownUntil >= processedUntil + cur.length) {
+							return;
+						}
+						dataKnownUntil = processedUntil + cur.length;
 						
 						try {
 							parsed = JSON.parse(cur);
@@ -56,12 +72,11 @@
 						}
 						if (parsed) {
 							processedUntil += cur.length;
-							callback(parsed);
+							processCallback(parsed);
 							return;
 						}
 						
-						var n = 1;
-						while (n < cur.length && n > 0) {
+						while (n < cur.length && n > -1) {
 							n = cur.indexOf('}', n);
 							try {
 								parsed = JSON.parse(cur.substring(0, n + 1));
@@ -69,10 +84,10 @@
 								parsed = null;
 							}
 							if (parsed) {
-								processedUntil += n;
+								processedUntil += n + 1;
 								cur = cur.substring(n + 1);
-								n = 1;
-								callback(parsed);
+								n = 0;
+								processCallback(parsed);
 							} else {
 								n++;
 							}
