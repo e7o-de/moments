@@ -31,6 +31,7 @@ class Moment
 			$this->config = new AlternativeReader(
 				new JsonReader($this->baseDir . '/config/config.json'),
 				new JsonReader($this->baseDir . '/config/credentials.json'),
+				new JsonReader($this->baseDir . '/config/machine.json'),
 				new JsonReader(__DIR__ . '/../../../config/default.json'),
 				$this->bundleManager
 			);
